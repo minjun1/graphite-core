@@ -1,0 +1,16 @@
+CATL Annual Report 2024 — Supply Chain Disclosure
+
+Contemporary Amperex Technology Co. Limited (CATL) is the world's largest
+battery cell manufacturer, supplying lithium-ion battery cells to major
+automakers globally.
+
+Key supplier relationships:
+- CATL sources cobalt primarily from mines in the Democratic Republic of
+  the Congo, with Glencore as a major cobalt supplier under a long-term
+  supply agreement.
+- Lithium is sourced from operations in Chile through Albemarle Corporation
+  and SQM under multi-year procurement contracts.
+- CATL supplies battery cells to Tesla under a long-term supply agreement
+  covering standard-range Model 3 and Model Y vehicles.
+- CATL also supplies battery cells to BMW and Volkswagen for their
+  electric vehicle platforms.

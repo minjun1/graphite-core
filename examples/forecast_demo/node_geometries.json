@@ -1,0 +1,30 @@
+{
+    "asset:PORT_HOUSTON": {
+        "lat": 29.7355,
+        "lon": -95.2690
+    },
+    "corridor:HOUSTON_SHIP_CHANNEL": {
+        "lat": 29.7400,
+        "lon": -95.0800
+    },
+    "facility:EXXON_BAYTOWN": {
+        "lat": 29.7516,
+        "lon": -94.9774
+    },
+    "facility:VALERO_HOUSTON": {
+        "lat": 29.7230,
+        "lon": -95.2850
+    },
+    "facility:FREEPORT_LNG": {
+        "lat": 28.9536,
+        "lon": -95.3593
+    },
+    "asset:CENTERPOINT_GRID": {
+        "lat": 29.7604,
+        "lon": -95.3698
+    },
+    "region:HOUSTON_METRO": {
+        "lat": 29.7604,
+        "lon": -95.3698
+    }
+}

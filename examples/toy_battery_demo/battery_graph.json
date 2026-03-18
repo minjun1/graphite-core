@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "built_at": "2026-03-14T06:05:10.739448+00:00",
+    "pipeline_version": "1.0",
+    "node_count": 7,
+    "edge_count": 5,
+    "edge_types": "{\"SUPPLIES_TO\": 4, \"PRODUCES\": 1}",
+    "assertion_modes": "{\"EXTRACTED\": 5}"
+  },
+  "nodes": [
+    {
+      "id": "company:CATL",
+      "node_type": "COMPANY",
+      "name": "CATL"
+    },
+    {
+      "id": "company:TSLA",
+      "node_type": "COMPANY",
+      "name": "Tesla"
+    },
+    {
+      "id": "company:BMW",
+      "node_type": "COMPANY",
+      "name": "BMW and Volkswagen"
+    },
+    {
+      "id": "country:CD",
+      "node_type": "COUNTRY",
+      "name": "mines in the Democratic Republic of\n  the Congo"
+    },
+    {
+      "id": "country:CN",
+      "node_type": "COUNTRY",
+      "name": "China"
+    },
+    {
+      "id": "mineral:COBALT",
+      "node_type": "MINERAL",
+      "name": "mineral:COBALT"
+    },
+    {
+      "id": "company:ALB",
+      "node_type": "COMPANY",
+      "name": "Albemarle Corporation"
+    }
+  ],
+  "edges": [
+    {
+      "source": "company:CATL",
+      "target": "company:TSLA",
+      "edge_type": "SUPPLIES_TO",
+      "assertion_mode": "EXTRACTED",
+      "bucket_weight": 0.5,
+      "cost": 0.693147,
+      "confidence": "MEDIUM",
+      "provenance_count": 1,
+      "evidence": "CATL supplies battery cells to Tesla under",
+      "data_source": "PDF",
+      "provenance": [
+        {
+          "source_id": "catl_supply_chain.txt",
+          "source_type": "PDF",
+          "source_url": "",
+          "evidence_quote": "CATL supplies battery cells to Tesla under",
+          "evidence_type": "TEXT_QUOTE",
+          "paragraph_index": -1,
+          "paragraph_hash": "",
+          "extracted_at": "2026-03-14T06:05:10.735010+00:00",
+          "extractor_version": "1.0",
+          "pipeline_version": "1.0",
+          "prompt_version": "1.0",
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "source": "company:CATL",
+      "target": "company:BMW",
+      "edge_type": "SUPPLIES_TO",
+      "assertion_mode": "EXTRACTED",
+      "bucket_weight": 0.5,
+      "cost": 0.693147,
+      "confidence": "MEDIUM",
+      "provenance_count": 1,
+      "evidence": "CATL also supplies battery cells to BMW and Volkswagen for",
+      "data_source": "PDF",
+      "provenance": [
+        {
+          "source_id": "catl_supply_chain.txt",
+          "source_type": "PDF",
+          "source_url": "",
+          "evidence_quote": "CATL also supplies battery cells to BMW and Volkswagen for",
+          "evidence_type": "TEXT_QUOTE",
+          "paragraph_index": -1,
+          "paragraph_hash": "",
+          "extracted_at": "2026-03-14T06:05:10.735423+00:00",
+          "extractor_version": "1.0",
+          "pipeline_version": "1.0",
+          "prompt_version": "1.0",
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "source": "country:CD",
+      "target": "company:CATL",
+      "edge_type": "SUPPLIES_TO",
+      "assertion_mode": "EXTRACTED",
+      "bucket_weight": 0.5,
+      "cost": 0.693147,
+      "confidence": "MEDIUM",
+      "provenance_count": 1,
+      "evidence": "CATL sources cobalt primarily from mines in the Democratic Republic of\n  the Congo,",
+      "data_source": "PDF",
+      "provenance": [
+        {
+          "source_id": "catl_supply_chain.txt",
+          "source_type": "PDF",
+          "source_url": "",
+          "evidence_quote": "CATL sources cobalt primarily from mines in the Democratic Republic of\n  the Congo,",
+          "evidence_type": "TEXT_QUOTE",
+          "paragraph_index": -1,
+          "paragraph_hash": "",
+          "extracted_at": "2026-03-14T06:05:10.735586+00:00",
+          "extractor_version": "1.0",
+          "pipeline_version": "1.0",
+          "prompt_version": "1.0",
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "source": "country:CN",
+      "target": "mineral:COBALT",
+      "edge_type": "PRODUCES",
+      "assertion_mode": "EXTRACTED",
+      "bucket_weight": 0.7,
+      "cost": 0.356675,
+      "confidence": "HIGH",
+      "production_pct": 75.0,
+      "provenance_count": 1,
+      "evidence": "China controlled approximately 75% of global cobalt refining",
+      "data_source": "PDF",
+      "provenance": [
+        {
+          "source_id": "congo_cobalt_report.txt",
+          "source_type": "PDF",
+          "source_url": "",
+          "evidence_quote": "China controlled approximately 75% of global cobalt refining",
+          "evidence_type": "TEXT_QUOTE",
+          "paragraph_index": -1,
+          "paragraph_hash": "",
+          "extracted_at": "2026-03-14T06:05:10.736518+00:00",
+          "extractor_version": "1.0",
+          "pipeline_version": "1.0",
+          "prompt_version": "1.0",
+          "confidence": "HIGH"
+        }
+      ]
+    },
+    {
+      "source": "company:ALB",
+      "target": "company:TSLA",
+      "edge_type": "SUPPLIES_TO",
+      "assertion_mode": "EXTRACTED",
+      "bucket_weight": 0.5,
+      "cost": 0.693147,
+      "confidence": "MEDIUM",
+      "provenance_count": 1,
+      "evidence": "Tesla sources lithium for its Nevada operations from Albemarle Corporation\nunder",
+      "data_source": "PDF",
+      "provenance": [
+        {
+          "source_id": "tesla_10k_excerpt.txt",
+          "source_type": "PDF",
+          "source_url": "",
+          "evidence_quote": "Tesla sources lithium for its Nevada operations from Albemarle Corporation\nunder",
+          "evidence_type": "TEXT_QUOTE",
+          "paragraph_index": -1,
+          "paragraph_hash": "",
+          "extracted_at": "2026-03-14T06:05:10.738702+00:00",
+          "extractor_version": "1.0",
+          "pipeline_version": "1.0",
+          "prompt_version": "1.0",
+          "confidence": "MEDIUM"
+        }
+      ]
+    }
+  ],
+  "node_count": 7,
+  "edge_count": 5
+}

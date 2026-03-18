@@ -1,0 +1,18 @@
+SOURCE: Compiled from public reports — Reuters, U.S. Energy Information Administration, and Port Houston Authority
+URLs:
+  - https://www.eia.gov/todayinenergy/detail.php?id=32852
+  - https://porthouston.com/
+
+EXCERPT:
+
+The Port of Houston Authority reported significant disruption from Hurricane Harvey. All terminals operated by the port were closed from August 25 through August 31, 2017, resulting in the complete shutdown of the Houston Ship Channel. The port handles approximately 247 million tons of cargo annually, including roughly 70 percent of all US Gulf Coast petrochemical exports. The Houston Ship Channel is a critical corridor connecting the Port of Houston to the Gulf of Mexico via Galveston Bay. Approximately 8,000 vessels transit the channel annually, carrying petrochemicals, crude oil, refined products, and containerized cargo.
+
+According to the U.S. Energy Information Administration, Hurricane Harvey forced 18 refineries in Texas to partially or completely shut down, compromising approximately 3.6 million barrels of oil per day, representing about 20 percent of U.S. refining capacity.
+
+The Motiva Port Arthur refinery, located downstream along the Gulf Coast, suspended operations on August 27, 2017 due to flooding. Motiva Port Arthur is the largest petroleum refinery in the United States, with a capacity of approximately 600,000 barrels per day. The refinery depends on the Houston Ship Channel for crude oil deliveries transported by barge.
+
+ExxonMobil's Baytown refinery complex, located directly on the Houston Ship Channel, reduced operations to minimum rates on August 28, 2017. The Baytown complex, with a combined capacity of over 560,000 barrels per day, was unable to receive crude oil shipments due to channel closure. The facility resumed full operations on September 5, 2017.
+
+Valero Energy's Houston refinery, with a capacity of 205,000 barrels per day, shut down on August 27, 2017 due to flooding at the facility perimeter. The refinery is located in Manchester, a neighborhood in Houston's East End situated adjacent to the Houston Ship Channel.
+
+The combined impact of these refinery shutdowns removed approximately 25 percent of total US Gulf Coast refining capacity from service, affecting downstream petrochemical production and fuel distribution nationwide.

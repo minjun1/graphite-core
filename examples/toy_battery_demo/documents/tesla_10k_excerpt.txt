@@ -1,0 +1,10 @@
+Tesla Inc. 10-K Annual Report — Supply Chain Risk Factors
+
+Tesla depends on a limited number of suppliers for battery cells, a critical
+component of all Tesla vehicles. CATL and LG Energy Solution are Tesla's
+primary battery cell suppliers. A disruption at either supplier could
+materially impact vehicle production.
+
+Tesla sources lithium for its Nevada operations from Albemarle Corporation
+under a multi-year supply agreement. Nickel is sourced from BHP under a
+supply contract for battery-grade nickel sulfate.

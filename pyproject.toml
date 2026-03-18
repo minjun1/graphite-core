@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graphite-engine"
+version = "0.3.0"
+description = "Open-source claim verification engine for agent-generated assertions in high-stakes domains"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "Min Jun Kim"}]
+keywords = ["verification", "claims", "evidence", "provenance", "trust", "graph"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "networkx>=3.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+neo4j = ["neo4j>=5.0"]
+llm = ["google-genai>=1.0"]
+geo = ["rasterio>=1.3", "numpy>=1.24"]
+all = ["graphite-engine[neo4j,llm,geo]"]
+dev = [
+    "pytest>=8.0",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/graf-research/graphite"
+Documentation = "https://github.com/graf-research/graphite#readme"
+Repository = "https://github.com/graf-research/graphite"
+Issues = "https://github.com/graf-research/graphite/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+graphite = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

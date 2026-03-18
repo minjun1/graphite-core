@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Import smoke test
+        run: |
+          python -c "
+          from graphite import (
+              Claim, ClaimStore, Provenance, ConfidenceScorer,
+              ExtractedEdge, GraphAssembler, build_blast_radius,
+              NodeRef, EvidencePacket, BaseFetcher, BaseExtractor,
+              DomainSpec, save_graph, load_graph, map_to_tier,
+              BaseRuleEngine,
+          )
+          print('✅ All public API imports OK')
+          print(f'   version: {__import__(\"graphite\").__version__}')
+          "
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Quickstart verification example
+        run: python examples/quickstart_verification/run.py
+
+      - name: Toy battery demo
+        run: python examples/toy_battery_demo/run.py
+
+      - name: Verify toy demo output
+        run: |
+          python -c "
+          import json
+          with open('examples/toy_battery_demo/output.json') as f:
+              actual = json.load(f)
+          with open('examples/toy_battery_demo/expected_output.json') as f:
+              expected = json.load(f)
+          assert actual['graph_nodes'] == expected['graph_nodes'], f'Node count mismatch'
+          assert actual['graph_edges'] == expected['graph_edges'], f'Edge count mismatch'
+          assert len(actual['blast_radius']) == len(expected['blast_radius']), f'Blast radius size mismatch'
+          for a, e in zip(actual['blast_radius'], expected['blast_radius']):
+              assert a['entity'] == e['entity'], f'Entity mismatch: {a} vs {e}'
+              assert abs(a['total_exposure'] - e['total_exposure']) < 0.001, f'Score mismatch: {a} vs {e}'
+          print('✅ Toy demo output matches expected')
+          "

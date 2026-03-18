@@ -1,0 +1,60 @@
+{
+  "scenario_id": "hurricane_harvey_2017",
+  "shock_source": "asset:PORT_HOUSTON",
+  "shock_event": "Hurricane Harvey (Category 4, Aug 25 2017)",
+  "alphaearth_enriched": true,
+  "similarity_adjusted": true,
+  "graph_nodes": 10,
+  "graph_edges": 10,
+  "blast_radius": [
+    {
+      "entity": "facility:EXXON_BAYTOWN",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.685336,
+      "base_exposure": 0.576,
+      "embedding_similarity": 0.8164,
+      "similarity_delta": 0.1093
+    },
+    {
+      "entity": "facility:MOTIVA_PORT_ARTHUR",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.621632,
+      "base_exposure": 0.54,
+      "embedding_similarity": 0.7519,
+      "similarity_delta": 0.0816
+    },
+    {
+      "entity": "facility:VALERO_HOUSTON",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.615506,
+      "base_exposure": 0.504,
+      "embedding_similarity": 0.8687,
+      "similarity_delta": 0.1115
+    },
+    {
+      "entity": "corridor:HOUSTON_SHIP_CHANNEL",
+      "exposure_tier": "HIGH",
+      "total_exposure": 0.358817,
+      "base_exposure": 0.322604,
+      "embedding_similarity": 0.6871,
+      "similarity_delta": 0.0362
+    },
+    {
+      "entity": "facility:LYONDELLBASELL_CHANNELVIEW",
+      "exposure_tier": "HIGH",
+      "total_exposure": 0.353389,
+      "base_exposure": 0.29952,
+      "embedding_similarity": 0.7997,
+      "similarity_delta": 0.0539
+    },
+    {
+      "entity": "facility:DOW_FREEPORT",
+      "exposure_tier": "HIGH",
+      "total_exposure": 0.331495,
+      "base_exposure": 0.27648,
+      "embedding_similarity": 0.8316,
+      "similarity_delta": 0.055
+    }
+  ],
+  "alphaearth_nodes": 9
+}

@@ -1,0 +1,68 @@
+{
+    "asset:PORT_HOUSTON": {
+        "lat": 29.7355,
+        "lon": -95.2690,
+        "label": "Port of Houston",
+        "note": "Largest US port by foreign waterborne tonnage"
+    },
+    "corridor:HOUSTON_SHIP_CHANNEL": {
+        "lat": 29.7400,
+        "lon": -95.0800,
+        "bbox": [
+            29.72,
+            -95.28,
+            29.76,
+            -94.78
+        ],
+        "label": "Houston Ship Channel",
+        "note": "52-mile waterway connecting Port Houston to Galveston Bay"
+    },
+    "facility:EXXON_BAYTOWN": {
+        "lat": 29.7516,
+        "lon": -94.9774,
+        "label": "ExxonMobil Baytown Refinery Complex",
+        "note": "560,000+ bpd capacity, directly on Houston Ship Channel"
+    },
+    "facility:MOTIVA_PORT_ARTHUR": {
+        "lat": 29.8988,
+        "lon": -93.9370,
+        "label": "Motiva Port Arthur Refinery",
+        "note": "Largest US refinery, ~600,000 bpd"
+    },
+    "facility:VALERO_HOUSTON": {
+        "lat": 29.7230,
+        "lon": -95.2850,
+        "label": "Valero Houston Refinery",
+        "note": "205,000 bpd, Manchester neighborhood, adjacent to Ship Channel"
+    },
+    "facility:LYONDELLBASELL_CHANNELVIEW": {
+        "lat": 29.7810,
+        "lon": -95.1155,
+        "label": "LyondellBasell Channelview Complex",
+        "note": "~20 miles east of downtown Houston on Ship Channel"
+    },
+    "facility:DOW_FREEPORT": {
+        "lat": 28.9536,
+        "lon": -95.3593,
+        "label": "Dow Freeport Complex",
+        "note": "One of largest integrated chemical sites in Western Hemisphere"
+    },
+    "facility:ARKEMA_CROSBY": {
+        "lat": 29.9167,
+        "lon": -95.0775,
+        "label": "Arkema Crosby Plant",
+        "note": "Organic peroxide manufacturing, ~25 miles NE of Houston"
+    },
+    "asset:CENTERPOINT_GRID": {
+        "lat": 29.7604,
+        "lon": -95.3698,
+        "label": "CenterPoint Energy Grid",
+        "note": "Electric utility serving Houston metro, ~800K customers lost power"
+    },
+    "asset:ERCOT_GRID": {
+        "lat": 30.2672,
+        "lon": -97.7431,
+        "label": "ERCOT Texas Grid",
+        "note": "Texas grid operator, Austin HQ"
+    }
+}

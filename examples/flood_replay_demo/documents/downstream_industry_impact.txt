@@ -1,0 +1,21 @@
+SOURCE: Compiled from public reports — U.S. Chemical Safety Board (CSB), PBS NewsHour, Environmental Defense Fund
+URLs:
+  - https://www.csb.gov/arkema-inc-chemical-plant-fire-/
+  - https://www.pbs.org/newshour/science/hurricane-harveys-toxic-impact-worse-than-reported
+  - https://www.edf.org/
+
+EXCERPT:
+
+The shutdown of petroleum refineries during Hurricane Harvey cascaded through the downstream chemical supply chain. Refineries produce feedstocks — including ethylene, propylene, and benzene — that serve as inputs for downstream chemical manufacturers.
+
+LyondellBasell Industries, one of the world's largest plastics and chemicals companies, shut down its Channelview complex on August 28, 2017. The Channelview complex, located approximately 20 miles east of downtown Houston along the Houston Ship Channel, processes ethylene and propylene sourced from nearby refineries. LyondellBasell reported that the shutdown was caused by flooding at the facility and loss of feedstock supply from upstream refinery closures.
+
+Dow Chemical's Freeport, Texas operations were partially curtailed due to reduced ethylene supply. The Dow Freeport complex, one of the largest integrated chemical manufacturing sites in the Western Hemisphere, depends on pipeline deliveries of ethylene from Houston-area refineries.
+
+The Texas grid operator, ERCOT, reported that flooding forced the shutdown of several natural gas power generating stations in the Houston area. CenterPoint Energy, the electric utility serving the Houston metropolitan area, reported that approximately 800,000 customers lost power during the storm. The grid disruptions affected industrial facilities that depend on stable power supply, including refineries, chemical plants, and data centers.
+
+According to the U.S. Chemical Safety Board (CSB): "On August 29, 2017, flooding from Hurricane Harvey disabled the refrigeration system at the Arkema plant in Crosby, TX, which manufactures organic peroxides. The following day people within a 1.5 mile radius were evacuated. As the trailers increased in temperature the peroxides spontaneously combusted on August 31." The Arkema facility depends on electrical power from the local grid and backup generators, both of which failed due to flood damage.
+
+The Environmental Defense Fund estimated that over 1 million pounds of air pollutants were released by Houston's petrochemical industry due to Harvey. More than 40 sites, including petrochemical plants, refineries, and toxic waste sites, released hazardous pollutants. At least 25 plants either shut down or experienced production issues.
+
+Total estimated economic losses attributed to supply chain disruption from Hurricane Harvey refinery and chemical plant shutdowns exceeded $5 billion, according to industry analysis.

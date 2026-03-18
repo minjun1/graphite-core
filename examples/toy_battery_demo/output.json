@@ -1,0 +1,22 @@
+{
+  "shock_source": "country:CD",
+  "graph_nodes": 7,
+  "graph_edges": 5,
+  "blast_radius": [
+    {
+      "entity": "company:CATL",
+      "exposure_tier": "HIGH",
+      "total_exposure": 0.3
+    },
+    {
+      "entity": "company:BMW",
+      "exposure_tier": "MEDIUM",
+      "total_exposure": 0.09
+    },
+    {
+      "entity": "company:TSLA",
+      "exposure_tier": "MEDIUM",
+      "total_exposure": 0.09
+    }
+  ]
+}

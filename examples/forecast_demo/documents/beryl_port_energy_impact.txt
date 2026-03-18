@@ -1,0 +1,16 @@
+SOURCE: Compiled from public reports — Port Houston Authority, Reuters, Offshore Technology
+URLs:
+  - https://porthouston.com/
+  - https://www.offshore-technology.com/
+
+EXCERPT:
+
+In anticipation of Hurricane Beryl, several major ports in Texas were closed including Houston, Corpus Christi, Galveston, and Freeport. The Port of Houston suspended all operations on July 7, 2024, with all facilities remaining closed on July 9 for preliminary assessments. The Houston Ship Channel experienced transit restrictions before halting all traffic.
+
+The Port of Houston Authority reported that terminals resumed operations approximately two days after the storm passed, a significantly faster recovery than Hurricane Harvey in 2017, which caused a six-day closure. Port Houston noted that Beryl's impact on cargo volumes resulted in a dip in July 2024 throughput.
+
+Freeport LNG, one of the largest liquefied natural gas export facilities in the United States, located approximately 60 miles south of Houston, saw disrupted operations and slowed production due to Hurricane Beryl. The facility depends on pipeline deliveries of natural gas and stable electrical power, both of which were affected by the storm.
+
+Several petroleum refineries along the Texas Gulf Coast reduced operations or initiated controlled shutdowns in advance of the hurricane. ExxonMobil's Baytown refinery complex reduced throughput on July 7, 2024, citing storm preparedness. Valero Energy operations at its Houston plant were affected by post-storm power disruptions. Energy companies in Texas began restoring operations within 48 hours of the storm passing.
+
+CenterPoint Energy faced intense scrutiny after more than 2.7 million customers lost power. The utility reported that extensive damage to the transmission and distribution grid contributed to prolonged outage restoration times, with some customers experiencing outages lasting more than a week.

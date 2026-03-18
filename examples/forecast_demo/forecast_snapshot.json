@@ -1,0 +1,127 @@
+{
+    "meta": {
+        "model": "WeatherNext 2 (experimental)",
+        "resolution": "0.25°",
+        "ensemble_members": 64,
+        "init_time": "2024-07-07T12:00:00Z",
+        "lead_hours": 72,
+        "coverage": "Gulf of Mexico / Texas Coast",
+        "disclaimer": "This is a simulated snapshot for demo purposes. WeatherNext 2 is an experimental dataset. Not validated for real-world use."
+    },
+    "forecast_points": [
+        {
+            "lat": 29.7355,
+            "lon": -95.2690,
+            "node_id": "asset:PORT_HOUSTON",
+            "fields": {
+                "wind_speed_ms": 38.5,
+                "wind_gust_ms": 48.7,
+                "precipitation_mm": 152.0,
+                "pressure_hpa": 985.2,
+                "temperature_c": 31.4,
+                "humidity_pct": 94.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 32.1,
+                "wind_speed_ms_p90": 44.8,
+                "precipitation_mm_p10": 95.0,
+                "precipitation_mm_p90": 210.0
+            }
+        },
+        {
+            "lat": 29.7400,
+            "lon": -95.0800,
+            "node_id": "corridor:HOUSTON_SHIP_CHANNEL",
+            "fields": {
+                "wind_speed_ms": 36.2,
+                "wind_gust_ms": 46.1,
+                "precipitation_mm": 148.0,
+                "pressure_hpa": 986.0,
+                "temperature_c": 31.2,
+                "humidity_pct": 93.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 30.5,
+                "wind_speed_ms_p90": 42.0,
+                "precipitation_mm_p10": 88.0,
+                "precipitation_mm_p90": 195.0
+            }
+        },
+        {
+            "lat": 29.7516,
+            "lon": -94.9774,
+            "node_id": "facility:EXXON_BAYTOWN",
+            "fields": {
+                "wind_speed_ms": 35.8,
+                "wind_gust_ms": 45.6,
+                "precipitation_mm": 140.0,
+                "pressure_hpa": 986.5,
+                "temperature_c": 31.0,
+                "humidity_pct": 92.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 29.8,
+                "wind_speed_ms_p90": 41.5,
+                "precipitation_mm_p10": 82.0,
+                "precipitation_mm_p90": 188.0
+            }
+        },
+        {
+            "lat": 29.7230,
+            "lon": -95.2850,
+            "node_id": "facility:VALERO_HOUSTON",
+            "fields": {
+                "wind_speed_ms": 37.2,
+                "wind_gust_ms": 47.3,
+                "precipitation_mm": 155.0,
+                "pressure_hpa": 985.4,
+                "temperature_c": 31.3,
+                "humidity_pct": 94.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 31.0,
+                "wind_speed_ms_p90": 43.5,
+                "precipitation_mm_p10": 92.0,
+                "precipitation_mm_p90": 205.0
+            }
+        },
+        {
+            "lat": 28.9536,
+            "lon": -95.3593,
+            "node_id": "facility:FREEPORT_LNG",
+            "fields": {
+                "wind_speed_ms": 42.1,
+                "wind_gust_ms": 52.3,
+                "precipitation_mm": 180.0,
+                "pressure_hpa": 982.1,
+                "temperature_c": 30.8,
+                "humidity_pct": 96.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 36.0,
+                "wind_speed_ms_p90": 48.5,
+                "precipitation_mm_p10": 120.0,
+                "precipitation_mm_p90": 240.0
+            }
+        },
+        {
+            "lat": 29.7604,
+            "lon": -95.3698,
+            "node_id": "asset:CENTERPOINT_GRID",
+            "fields": {
+                "wind_speed_ms": 39.0,
+                "wind_gust_ms": 49.2,
+                "precipitation_mm": 160.0,
+                "pressure_hpa": 984.8,
+                "temperature_c": 31.5,
+                "humidity_pct": 95.0
+            },
+            "ensemble_spread": {
+                "wind_speed_ms_p10": 33.0,
+                "wind_speed_ms_p90": 45.0,
+                "precipitation_mm_p10": 100.0,
+                "precipitation_mm_p90": 215.0
+            }
+        }
+    ]
+}

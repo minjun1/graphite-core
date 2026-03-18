@@ -1,0 +1,45 @@
+{
+  "scenario_id": "hurricane_beryl_2024_forecast",
+  "event": "Hurricane Beryl (Category 1, July 8 2024)",
+  "forecast_model": "WeatherNext 2 (experimental)",
+  "forecast_init": "2024-07-07T12:00:00Z",
+  "disclaimer": "WeatherNext 2 is experimental. Not validated for real-world use.",
+  "graph_nodes": 7,
+  "graph_edges": 9,
+  "shocks": [
+    {
+      "shock_id": "hurricane_beryl_2024_forecast",
+      "target_nodes": [
+        "asset:PORT_HOUSTON",
+        "corridor:HOUSTON_SHIP_CHANNEL",
+        "facility:EXXON_BAYTOWN",
+        "facility:VALERO_HOUSTON",
+        "facility:FREEPORT_LNG",
+        "asset:CENTERPOINT_GRID"
+      ],
+      "intensity": 0.75
+    }
+  ],
+  "blast_radius": [
+    {
+      "entity": "asset:CENTERPOINT_GRID",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.577377
+    },
+    {
+      "entity": "asset:PORT_HOUSTON",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.577377
+    },
+    {
+      "entity": "region:HOUSTON_METRO",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.53258
+    },
+    {
+      "entity": "corridor:HOUSTON_SHIP_CHANNEL",
+      "exposure_tier": "EXTREME",
+      "total_exposure": 0.510427
+    }
+  ]
+}
