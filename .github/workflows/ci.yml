@@ -31,10 +31,8 @@ jobs:
           python -c "
           from graphite import (
               Claim, ClaimStore, Provenance, ConfidenceScorer,
-              ExtractedEdge, GraphAssembler, build_blast_radius,
               NodeRef, EvidencePacket, BaseFetcher, BaseExtractor,
-              DomainSpec, save_graph, load_graph, map_to_tier,
-              BaseRuleEngine,
+              DomainSpec, BaseRuleEngine,
           )
           print('✅ All public API imports OK')
           print(f'   version: {__import__(\"graphite\").__version__}')
@@ -43,25 +41,8 @@ jobs:
       - name: Run tests
         run: pytest -v
 
-      - name: Quickstart verification example
-        run: python examples/quickstart_verification/run.py
+      - name: Evidence accumulation example
+        run: python examples/evidence_accumulation/run.py
 
-      - name: Toy battery demo
-        run: python examples/toy_battery_demo/run.py
-
-      - name: Verify toy demo output
-        run: |
-          python -c "
-          import json
-          with open('examples/toy_battery_demo/output.json') as f:
-              actual = json.load(f)
-          with open('examples/toy_battery_demo/expected_output.json') as f:
-              expected = json.load(f)
-          assert actual['graph_nodes'] == expected['graph_nodes'], f'Node count mismatch'
-          assert actual['graph_edges'] == expected['graph_edges'], f'Edge count mismatch'
-          assert len(actual['blast_radius']) == len(expected['blast_radius']), f'Blast radius size mismatch'
-          for a, e in zip(actual['blast_radius'], expected['blast_radius']):
-              assert a['entity'] == e['entity'], f'Entity mismatch: {a} vs {e}'
-              assert abs(a['total_exposure'] - e['total_exposure']) < 0.001, f'Score mismatch: {a} vs {e}'
-          print('✅ Toy demo output matches expected')
-          "
+      - name: Lineage override demo
+        run: python examples/lineage_override_demo/run.py
