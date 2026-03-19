@@ -30,4 +30,4 @@ from .domain import register_domain, get_domain, list_domains
 # ── Rules ──
 from .rules import BaseRuleEngine, RuleResult, ScoreBreakdown
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
