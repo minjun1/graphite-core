@@ -72,7 +72,8 @@ class Provenance(BaseModel):
     source_id: str = Field(description="Unique ID: accession_no, USGS URL, etc.")
     source_type: SourceType
     source_url: str = Field(default="")
-    evidence_quote: str = Field(description="Verbatim text proving the relationship")
+    evidence_quote: str = Field(description="Retrieved candidate text span")
+    cited_span: str = Field(default="", description="The specific exact quote used in the final verdict")
     evidence_type: EvidenceType = Field(default=EvidenceType.TEXT_QUOTE)
     paragraph_index: int = Field(default=-1)
     paragraph_hash: str = Field(default="")

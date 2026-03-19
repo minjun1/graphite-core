@@ -10,9 +10,6 @@ Core primitives:
 
 Pipeline:
   Agent/Extractor → Claim[] → ClaimStore (accumulate) → Verify
-
-Also included:
-  Graph assembly (GraphAssembler) and shock propagation (simulate, scenario)
 """
 
 # ── Core schemas ──
@@ -26,23 +23,11 @@ from .claim import ConfidenceFactor, ConfidenceResult
 from .claim_store import ClaimStore
 from .confidence import ConfidenceScorer
 
-# ── Assembly ──
-from .assembler import GraphAssembler
-
 # ── Domain plugin contracts ──
 from .domain import BaseFetcher, BaseExtractor, BasePipeline, DocumentContext, DomainSpec
 from .domain import register_domain, get_domain, list_domains
 
 # ── Rules ──
 from .rules import BaseRuleEngine, RuleResult, ScoreBreakdown
-
-# ── Simulation ──
-from .simulate import top_k_paths_from_source, build_blast_radius, map_to_tier
-
-# ── Scenario ──
-from .scenario import ScenarioShock, ScenarioRunner
-
-# ── I/O ──
-from .io import save_graph, load_graph
 
 __version__ = "0.3.0"

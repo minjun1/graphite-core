@@ -24,3 +24,5 @@ node_modules/
 # Data
 *.db
 *.sqlite3
+examples/legacy/*/cache/
+*.npy

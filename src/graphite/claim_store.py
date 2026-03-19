@@ -115,6 +115,14 @@ class ClaimStore:
             if claim.confidence is not None:
                 existing.confidence = claim.confidence
             existing.computed_status = claim.computed_status
+            # Preserve analyst override if the incoming claim has one
+            if claim.is_overridden:
+                existing.final_status = claim.final_status
+                existing.override_reason = claim.override_reason
+                existing.review_state = claim.review_state
+                existing.reviewed_by = claim.reviewed_by
+                existing.reviewed_at = claim.reviewed_at
+                existing.reviewer_note = claim.reviewer_note
             # Preserve generator info if the new one provides it
             if claim.generator_id:
                 existing.generator_id = claim.generator_id
