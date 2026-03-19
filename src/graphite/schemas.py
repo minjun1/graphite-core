@@ -5,14 +5,19 @@ These are the canonical types that cross module boundaries.
 Domain-specific schemas live in their own packages and get
 converted to these types before reaching the assembler.
 """
+
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
 from .enums import (
-    AssertionMode, ConfidenceLevel, EdgeType, EvidenceType,
-    NodeType, SourceType,
+    AssertionMode,
+    ConfidenceLevel,
+    EdgeType,
+    EvidenceType,
+    NodeType,
+    SourceType,
 )
 
 
@@ -20,48 +25,73 @@ from .enums import (
 # Node Identity
 # ═══════════════════════════════════════
 
+
 class NodeRef(BaseModel):
     """Canonical node identity.
 
     Prevents 'Apple' vs 'AAPL' vs 'Apple Inc.' chaos by enforcing
     typed, prefixed IDs like "company:AAPL", "country:CD", "mineral:COBALT".
     """
-    node_id: str = Field(description="Canonical ID: 'company:AAPL', 'country:CD', 'mineral:COBALT'")
+
+    node_id: str = Field(
+        description="Canonical ID: 'company:AAPL', 'country:CD', 'mineral:COBALT'"
+    )
     node_type: NodeType
-    label: str = Field(default="", description="Display name, filled at assembly if blank")
+    label: str = Field(
+        default="", description="Display name, filled at assembly if blank"
+    )
 
     @classmethod
     def company(cls, ticker: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"company:{ticker.upper()}", node_type=NodeType.COMPANY, label=label)
+        return cls(
+            node_id=f"company:{ticker.upper()}", node_type=NodeType.COMPANY, label=label
+        )
 
     @classmethod
     def country(cls, iso: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"country:{iso.upper()}", node_type=NodeType.COUNTRY, label=label)
+        return cls(
+            node_id=f"country:{iso.upper()}", node_type=NodeType.COUNTRY, label=label
+        )
 
     @classmethod
     def mineral(cls, name: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"mineral:{name.upper()}", node_type=NodeType.MINERAL, label=label)
+        return cls(
+            node_id=f"mineral:{name.upper()}", node_type=NodeType.MINERAL, label=label
+        )
 
     @classmethod
     def region(cls, code: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"region:{code.upper()}", node_type=NodeType.REGION, label=label)
+        return cls(
+            node_id=f"region:{code.upper()}", node_type=NodeType.REGION, label=label
+        )
 
     @classmethod
     def asset(cls, asset_id: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"asset:{asset_id.upper()}", node_type=NodeType.ASSET, label=label)
+        return cls(
+            node_id=f"asset:{asset_id.upper()}", node_type=NodeType.ASSET, label=label
+        )
 
     @classmethod
     def facility(cls, fac_id: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"facility:{fac_id.upper()}", node_type=NodeType.FACILITY, label=label)
+        return cls(
+            node_id=f"facility:{fac_id.upper()}",
+            node_type=NodeType.FACILITY,
+            label=label,
+        )
 
     @classmethod
     def corridor(cls, corridor_id: str, label: str = "") -> "NodeRef":
-        return cls(node_id=f"corridor:{corridor_id.upper()}", node_type=NodeType.CORRIDOR, label=label)
+        return cls(
+            node_id=f"corridor:{corridor_id.upper()}",
+            node_type=NodeType.CORRIDOR,
+            label=label,
+        )
 
 
 # ═══════════════════════════════════════
 # Provenance (Evidence Source)
 # ═══════════════════════════════════════
+
 
 class Provenance(BaseModel):
     """First-class evidence source for an edge.
@@ -69,11 +99,14 @@ class Provenance(BaseModel):
     A single edge may have MULTIPLE provenances when the same relationship
     is confirmed by different sources (e.g., USGS + SEC filing).
     """
+
     source_id: str = Field(description="Unique ID: accession_no, USGS URL, etc.")
     source_type: SourceType
     source_url: str = Field(default="")
     evidence_quote: str = Field(description="Retrieved candidate text span")
-    cited_span: str = Field(default="", description="The specific exact quote used in the final verdict")
+    cited_span: str = Field(
+        default="", description="The specific exact quote used in the final verdict"
+    )
     evidence_type: EvidenceType = Field(default=EvidenceType.TEXT_QUOTE)
     paragraph_index: int = Field(default=-1)
     paragraph_hash: str = Field(default="")
@@ -88,19 +121,25 @@ class Provenance(BaseModel):
     observed_at: str = Field(default="", description="When the evidence was observed")
     valid_from: str = Field(default="", description="Start of validity window")
     valid_to: str = Field(default="", description="End of validity window")
-    snapshot_id: str = Field(default="", description="Links to a specific data snapshot")
+    snapshot_id: str = Field(
+        default="", description="Links to a specific data snapshot"
+    )
 
 
 # ═══════════════════════════════════════
 # Inference Basis
 # ═══════════════════════════════════════
 
+
 class InferenceBasis(BaseModel):
     """Structured explanation for INFERRED edges.
 
     NOT a free dict — ensures UI/MCP can render inference explanations.
     """
-    method: str = Field(description="e.g. 'customer_filing_reverse', 'industry_knowledge'")
+
+    method: str = Field(
+        description="e.g. 'customer_filing_reverse', 'industry_knowledge'"
+    )
     based_on_edges: List[str] = Field(
         default_factory=list,
         description="Edge keys that support this inference",
@@ -116,6 +155,7 @@ class InferenceBasis(BaseModel):
 # Extracted Edge (Core Boundary Type)
 # ═══════════════════════════════════════
 
+
 class ExtractedEdge(BaseModel):
     """Normalized edge — the ONLY type that leaves any extractor.
 
@@ -123,6 +163,7 @@ class ExtractedEdge(BaseModel):
     to each domain's extractor. They get converted to ExtractedEdge before
     reaching the assembler or writer.
     """
+
     from_node: NodeRef
     to_node: NodeRef
     edge_type: str = Field(
@@ -146,7 +187,11 @@ class ExtractedEdge(BaseModel):
     @property
     def best_confidence(self) -> ConfidenceLevel:
         """Best confidence across all provenances."""
-        rank = {ConfidenceLevel.HIGH: 3, ConfidenceLevel.MEDIUM: 2, ConfidenceLevel.LOW: 1}
+        rank = {
+            ConfidenceLevel.HIGH: 3,
+            ConfidenceLevel.MEDIUM: 2,
+            ConfidenceLevel.LOW: 1,
+        }
         best = max(
             self.provenance,
             key=lambda p: rank.get(p.confidence, 0),
@@ -159,8 +204,10 @@ class ExtractedEdge(BaseModel):
 # Extraction Errors
 # ═══════════════════════════════════════
 
+
 class ExtractionError(BaseModel):
     """Tracks pipeline failures for quality monitoring."""
+
     entity_id: str
     source_type: SourceType
     error_type: str = Field(

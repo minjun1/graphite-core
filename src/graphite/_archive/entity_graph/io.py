@@ -6,6 +6,7 @@ Serialization strategy:
   - JSON: full nested structure (rich storage)
   - Neo4j: provenance as edge property JSON (optional, requires neo4j extra)
 """
+
 import json
 import os
 from typing import Optional
@@ -171,22 +172,31 @@ def push_to_neo4j(
         for nid, data in G.nodes(data=True):
             node_type = data.get("node_type", "Entity")
             label = node_type.capitalize() if node_type else "Entity"
-            props = {k: v for k, v in data.items()
-                     if k != "node_type" and isinstance(v, (str, int, float, bool))}
+            props = {
+                k: v
+                for k, v in data.items()
+                if k != "node_type" and isinstance(v, (str, int, float, bool))
+            }
             props["id"] = nid
             session.run(
                 f"MERGE (n:{label} {{id: $id}}) SET n += $props",
-                id=nid, props=props,
+                id=nid,
+                props=props,
             )
 
         for src, tgt, data in G.edges(data=True):
             edge_type = data.get("edge_type", "RELATES_TO")
-            props = {k: v for k, v in data.items()
-                     if k != "edge_type" and isinstance(v, (str, int, float, bool))}
+            props = {
+                k: v
+                for k, v in data.items()
+                if k != "edge_type" and isinstance(v, (str, int, float, bool))
+            }
             session.run(
                 f"MATCH (a {{id: $src}}), (b {{id: $tgt}}) "
                 f"MERGE (a)-[r:{edge_type}]->(b) SET r += $props",
-                src=src, tgt=tgt, props=props,
+                src=src,
+                tgt=tgt,
+                props=props,
             )
             count += 1
 

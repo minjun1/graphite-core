@@ -14,6 +14,7 @@ Sources:
   - DOE infrastructure situation reports (energy.gov)
   - Reuters, Forbes, Washington Post industry coverage
 """
+
 import json
 import os
 from typing import Dict, List, Optional, Tuple
@@ -86,7 +87,12 @@ OBSERVED_OUTCOMES = {
 # Nodes in the blast radius that don't have direct shutdown data
 # (Port Houston is the shock source, CenterPoint/ERCOT are grid-level)
 SHOCK_SOURCE = "asset:PORT_HOUSTON"
-EXCLUDED_FROM_RANKING = {"asset:PORT_HOUSTON", "asset:CENTERPOINT_GRID", "asset:ERCOT_GRID", "region:US-TX-HOUSTON"}
+EXCLUDED_FROM_RANKING = {
+    "asset:PORT_HOUSTON",
+    "asset:CENTERPOINT_GRID",
+    "asset:ERCOT_GRID",
+    "region:US-TX-HOUSTON",
+}
 
 
 def load_blast_radius(path: str) -> List[Dict]:
@@ -107,7 +113,7 @@ def compute_spearman(predicted_ranks: List[int], observed_ranks: List[int]) -> f
     if n < 2:
         return 0.0
     d_sq_sum = sum((p - o) ** 2 for p, o in zip(predicted_ranks, observed_ranks))
-    rho = 1 - (6 * d_sq_sum) / (n * (n ** 2 - 1))
+    rho = 1 - (6 * d_sq_sum) / (n * (n**2 - 1))
     return rho
 
 
@@ -126,24 +132,30 @@ def validate(blast_radius: List[Dict], label: str = "Model") -> Dict:
     for i, item in enumerate(blast_radius):
         entity = item["entity"]
         if entity in OBSERVED_OUTCOMES:
-            ranked_entities.append({
-                "entity": entity,
-                "predicted_rank": len(ranked_entities) + 1,
-                "predicted_exposure": item.get("total_exposure", item.get("base_exposure", 0)),
-                "predicted_tier": item.get("exposure_tier", "?"),
-            })
+            ranked_entities.append(
+                {
+                    "entity": entity,
+                    "predicted_rank": len(ranked_entities) + 1,
+                    "predicted_exposure": item.get(
+                        "total_exposure", item.get("base_exposure", 0)
+                    ),
+                    "predicted_tier": item.get("exposure_tier", "?"),
+                }
+            )
 
     # Add observed outcomes not in blast radius (they'd rank last)
     blast_entities = {item["entity"] for item in blast_radius}
     next_rank = len(ranked_entities) + 1
     for entity, outcome in OBSERVED_OUTCOMES.items():
         if entity not in blast_entities:
-            ranked_entities.append({
-                "entity": entity,
-                "predicted_rank": next_rank,
-                "predicted_exposure": 0.0,
-                "predicted_tier": "NONE",
-            })
+            ranked_entities.append(
+                {
+                    "entity": entity,
+                    "predicted_rank": next_rank,
+                    "predicted_exposure": 0.0,
+                    "predicted_tier": "NONE",
+                }
+            )
             next_rank += 1
 
     # Attach observed data
@@ -183,30 +195,42 @@ def print_validation(result: Dict):
     entities = result["entities"]
     label = result["label"]
 
-    print(f"\n{'='*96}")
+    print(f"\n{'=' * 96}")
     print(f"  📐 Validation: {label} vs Observed Outcomes")
-    print(f"{'='*96}")
-    print(f"  {'FACILITY':<30s} | {'PRED':>4s} | {'OBS':>3s} | {'|Δ|':>3s} | {'SCORE':>6s} | {'DAYS':>4s} | ACTUAL IMPACT")
-    print(f"  {'':-<30s} | {'':-<4s} | {'':-<3s} | {'':-<3s} | {'':-<6s} | {'':-<4s} | {'':-<40s}")
+    print(f"{'=' * 96}")
+    print(
+        f"  {'FACILITY':<30s} | {'PRED':>4s} | {'OBS':>3s} | {'|Δ|':>3s} | {'SCORE':>6s} | {'DAYS':>4s} | ACTUAL IMPACT"
+    )
+    print(
+        f"  {'':-<30s} | {'':-<4s} | {'':-<3s} | {'':-<3s} | {'':-<6s} | {'':-<4s} | {'':-<40s}"
+    )
 
     for item in entities:
         name = item["facility"][:30]
         pred_r = item["predicted_rank"]
         obs_r = item["observed_rank"]
         delta = item["rank_delta"]
-        score = f"{item['predicted_exposure']:.1%}" if item['predicted_exposure'] > 0 else " N/A "
-        days = f"{item['observed_days']}d" if item['observed_days'] > 0 else " ?"
+        score = (
+            f"{item['predicted_exposure']:.1%}"
+            if item["predicted_exposure"] > 0
+            else " N/A "
+        )
+        days = f"{item['observed_days']}d" if item["observed_days"] > 0 else " ?"
         impact = item["impact"][:40]
 
         match = "✅" if delta <= 1 else "⚠️" if delta <= 2 else "❌"
-        print(f"  {name:<30s} | #{pred_r:<3d} | #{obs_r:<2d} | {delta:>2d}{match} | {score:>6s} | {days:>4s} | {impact}")
+        print(
+            f"  {name:<30s} | #{pred_r:<3d} | #{obs_r:<2d} | {delta:>2d}{match} | {score:>6s} | {days:>4s} | {impact}"
+        )
 
     rho = result["spearman_rho"]
     agr = result["agreements"]
     n = result["total"]
-    print(f"{'='*96}")
-    print(f"  Spearman ρ = {rho:.3f}  |  Rank agreement (±1): {agr}/{n} ({result['agreement_pct']:.0%})")
-    print(f"{'='*96}\n")
+    print(f"{'=' * 96}")
+    print(
+        f"  Spearman ρ = {rho:.3f}  |  Rank agreement (±1): {agr}/{n} ({result['agreement_pct']:.0%})"
+    )
+    print(f"{'=' * 96}\n")
 
 
 def run_comparison(output_path: str):
@@ -221,7 +245,9 @@ def run_comparison(output_path: str):
         base_blast = []
         for item in blast:
             base_item = dict(item)
-            base_item["total_exposure"] = item.get("base_exposure", item["total_exposure"])
+            base_item["total_exposure"] = item.get(
+                "base_exposure", item["total_exposure"]
+            )
             base_blast.append(base_item)
         base_blast.sort(key=lambda x: x["total_exposure"], reverse=True)
 
@@ -233,9 +259,13 @@ def run_comparison(output_path: str):
         print_validation(ae_result)
 
         # Summary comparison
-        print(f"  📊 Spearman ρ improvement: {base_result['spearman_rho']:.3f} → {ae_result['spearman_rho']:.3f} (Δ = {ae_result['spearman_rho'] - base_result['spearman_rho']:+.3f})")
-        improved = ae_result['spearman_rho'] > base_result['spearman_rho']
-        print(f"  {'✅ AlphaEarth IMPROVES rank correlation with observed outcomes' if improved else '⚠️  AlphaEarth does NOT improve rank correlation'}\n")
+        print(
+            f"  📊 Spearman ρ improvement: {base_result['spearman_rho']:.3f} → {ae_result['spearman_rho']:.3f} (Δ = {ae_result['spearman_rho'] - base_result['spearman_rho']:+.3f})"
+        )
+        improved = ae_result["spearman_rho"] > base_result["spearman_rho"]
+        print(
+            f"  {'✅ AlphaEarth IMPROVES rank correlation with observed outcomes' if improved else '⚠️  AlphaEarth does NOT improve rank correlation'}\n"
+        )
 
         return base_result, ae_result
     else:
@@ -249,6 +279,8 @@ if __name__ == "__main__":
     output_path = os.path.join(demo_dir, "output.json")
 
     if not os.path.exists(output_path):
-        print("❌ Run the demo first: python examples/flood_replay_demo/run.py --alphaearth")
+        print(
+            "❌ Run the demo first: python examples/flood_replay_demo/run.py --alphaearth"
+        )
     else:
         run_comparison(output_path)

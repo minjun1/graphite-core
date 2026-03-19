@@ -11,6 +11,7 @@ Run: python examples/evidence_accumulation/run.py
 
 No LLM. No API keys. Fully local.
 """
+
 import os
 import sys
 import tempfile
@@ -40,12 +41,14 @@ def main():
         claim_type=ClaimType.RELATIONSHIP,
         origin=ClaimOrigin.AGENT,
         generator_id="sec-extractor-v2",
-        supporting_evidence=[Provenance(
-            source_id="tsmc-10k-2024",
-            source_type=SourceType.SEC_10K,
-            evidence_quote="The Company provides advanced packaging services including CoWoS.",
-            confidence=ConfidenceLevel.HIGH,
-        )],
+        supporting_evidence=[
+            Provenance(
+                source_id="tsmc-10k-2024",
+                source_type=SourceType.SEC_10K,
+                evidence_quote="The Company provides advanced packaging services including CoWoS.",
+                confidence=ConfidenceLevel.HIGH,
+            )
+        ],
     )
     store.save_claim(claim_v1)
     saved = store.get_claim(claim_v1.claim_id)
@@ -65,18 +68,20 @@ def main():
         claim_type=ClaimType.RELATIONSHIP,
         origin=ClaimOrigin.AGENT,
         generator_id="sec-extractor-v2",
-        supporting_evidence=[Provenance(
-            source_id="nvda-10k-2024",
-            source_type=SourceType.SEC_10K,
-            evidence_quote="We rely on TSMC for CoWoS advanced packaging of our H100 GPUs.",
-            confidence=ConfidenceLevel.HIGH,
-        )],
+        supporting_evidence=[
+            Provenance(
+                source_id="nvda-10k-2024",
+                source_type=SourceType.SEC_10K,
+                evidence_quote="We rely on TSMC for CoWoS advanced packaging of our H100 GPUs.",
+                confidence=ConfidenceLevel.HIGH,
+            )
+        ],
     )
     store.save_claim(claim_v2)
     saved = store.get_claim(claim_v2.claim_id)
     print(f"   Evidence count: {len(saved.supporting_evidence)} ← accumulated!")
     for i, ev in enumerate(saved.supporting_evidence):
-        print(f"   [{i+1}] {ev.source_id}: \"{ev.evidence_quote[:60]}...\"")
+        print(f'   [{i + 1}] {ev.source_id}: "{ev.evidence_quote[:60]}..."')
     print()
 
     # ── Step 3: Exact duplicate evidence is NOT appended ──
@@ -85,7 +90,9 @@ def main():
 
     store.save_claim(claim_v1)  # same source_id + same quote
     saved = store.get_claim(claim_v1.claim_id)
-    print(f"   Evidence count: {len(saved.supporting_evidence)} ← still 2, duplicate skipped")
+    print(
+        f"   Evidence count: {len(saved.supporting_evidence)} ← still 2, duplicate skipped"
+    )
     print()
 
     # ── Step 4: Add a related claim, then query relationships ──
@@ -100,12 +107,14 @@ def main():
         claim_type=ClaimType.DEPENDENCY,
         origin=ClaimOrigin.AGENT,
         generator_id="sec-extractor-v2",
-        supporting_evidence=[Provenance(
-            source_id="nvda-10k-2024",
-            source_type=SourceType.SEC_10K,
-            evidence_quote="We depend on TSMC as our primary packaging provider.",
-            confidence=ConfidenceLevel.HIGH,
-        )],
+        supporting_evidence=[
+            Provenance(
+                source_id="nvda-10k-2024",
+                source_type=SourceType.SEC_10K,
+                evidence_quote="We depend on TSMC as our primary packaging provider.",
+                confidence=ConfidenceLevel.HIGH,
+            )
+        ],
     )
     store.save_claim(dependency_claim)
 

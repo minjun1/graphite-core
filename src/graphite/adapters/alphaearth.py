@@ -12,6 +12,7 @@ AlphaEarth Foundations:
   - Earth Engine dataset: GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL
   - GCS bucket: gs://alphaearth_foundations (Requester Pays)
 """
+
 import json
 import os
 from pathlib import Path
@@ -122,7 +123,9 @@ class AlphaEarthAdapter:
         Returns:
             numpy array of shape (64,)
         """
-        cache_key = node_id or f"bbox_{bbox[0]:.4f}_{bbox[1]:.4f}_{bbox[2]:.4f}_{bbox[3]:.4f}"
+        cache_key = (
+            node_id or f"bbox_{bbox[0]:.4f}_{bbox[1]:.4f}_{bbox[2]:.4f}_{bbox[3]:.4f}"
+        )
 
         cached = self._read_cache(cache_key, year)
         if cached is not None:

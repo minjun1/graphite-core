@@ -12,6 +12,7 @@ Tests:
   - Review workflow
   - ExtractedEdge claim_ids integration
 """
+
 import pytest
 
 from graphite.claim import (
@@ -33,6 +34,7 @@ from graphite.schemas import ExtractedEdge, NodeRef, Provenance
 # claim_id
 # ═══════════════════════════════════════
 
+
 class TestClaimId:
     def test_deterministic(self):
         id1 = _make_claim_id(["company:NVDA"], "SUPPLIES_TO", ["company:TSLA"])
@@ -41,8 +43,12 @@ class TestClaimId:
         assert len(id1) == 16
 
     def test_order_invariant_within_group(self):
-        id1 = _make_claim_id(["company:AAPL", "company:NVDA"], "SUPPLIES_TO", ["company:TSLA"])
-        id2 = _make_claim_id(["company:NVDA", "company:AAPL"], "SUPPLIES_TO", ["company:TSLA"])
+        id1 = _make_claim_id(
+            ["company:AAPL", "company:NVDA"], "SUPPLIES_TO", ["company:TSLA"]
+        )
+        id2 = _make_claim_id(
+            ["company:NVDA", "company:AAPL"], "SUPPLIES_TO", ["company:TSLA"]
+        )
         assert id1 == id2
 
     def test_subject_object_never_mixed(self):
@@ -64,6 +70,7 @@ class TestClaimId:
 # ═══════════════════════════════════════
 # Claim model
 # ═══════════════════════════════════════
+
 
 def _prov(quote="test quote", source_type=SourceType.SEC_10K):
     return Provenance(
@@ -136,6 +143,7 @@ class TestClaim:
 # Granularity
 # ═══════════════════════════════════════
 
+
 class TestGranularity:
     def test_default_atomic(self):
         claim = _claim()
@@ -154,6 +162,7 @@ class TestGranularity:
 # Temporal scope
 # ═══════════════════════════════════════
 
+
 class TestTemporalScope:
     def test_defaults_empty(self):
         claim = _claim()
@@ -162,7 +171,9 @@ class TestTemporalScope:
         assert claim.valid_to == ""
 
     def test_fiscal_year(self):
-        claim = _claim(as_of_date="FY2024", valid_from="2024-01-01", valid_to="2024-12-31")
+        claim = _claim(
+            as_of_date="FY2024", valid_from="2024-01-01", valid_to="2024-12-31"
+        )
         assert claim.as_of_date == "FY2024"
         assert claim.valid_from == "2024-01-01"
         assert claim.valid_to == "2024-12-31"
@@ -183,6 +194,7 @@ class TestTemporalScope:
 # ═══════════════════════════════════════
 # computed_status / final_status / override
 # ═══════════════════════════════════════
+
 
 class TestStatusSplit:
     def test_defaults_pending(self):
@@ -242,7 +254,9 @@ class TestStatusSplit:
         )
         assert claim.computed_status == ClaimStatus.WEAK  # unchanged
         assert claim.final_status == ClaimStatus.SUPPORTED  # overridden
-        assert claim.override_reason == "Analyst confirmed via direct call with supplier"
+        assert (
+            claim.override_reason == "Analyst confirmed via direct call with supplier"
+        )
         assert claim.reviewed_by == "analyst_1"
         assert claim.review_state == ReviewState.APPROVED
 
@@ -277,6 +291,7 @@ class TestStatusSplit:
 # Review workflow
 # ═══════════════════════════════════════
 
+
 class TestReviewWorkflow:
     def test_default_unreviewed(self):
         claim = _claim()
@@ -294,6 +309,7 @@ class TestReviewWorkflow:
 # ═══════════════════════════════════════
 # ExtractedEdge claim_ids
 # ═══════════════════════════════════════
+
 
 class TestEdgeClaimIds:
     def test_default_empty(self):
@@ -320,6 +336,7 @@ class TestEdgeClaimIds:
 # ConfidenceResult
 # ═══════════════════════════════════════
 
+
 class TestConfidenceResult:
     def test_from_score_high(self):
         r = ConfidenceResult.from_score(0.85)
@@ -338,13 +355,15 @@ class TestConfidenceResult:
         assert ConfidenceResult.from_score(-0.5).score == 0.0
 
     def test_with_factors(self):
-        factors = [ConfidenceFactor(
-            name="source_count",
-            raw_value="3 sources",
-            contribution=0.15,
-            direction="POSITIVE",
-            explanation="3 sources support this",
-        )]
+        factors = [
+            ConfidenceFactor(
+                name="source_count",
+                raw_value="3 sources",
+                contribution=0.15,
+                direction="POSITIVE",
+                explanation="3 sources support this",
+            )
+        ]
         r = ConfidenceResult.from_score(0.73, factors)
         assert len(r.factors) == 1
         assert r.factors[0].raw_value == "3 sources"

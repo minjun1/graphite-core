@@ -5,6 +5,7 @@ Defines the standard evidence payload that Graphite returns for every
 verified claim. This is the core "anti-hallucination" data structure:
 every relationship in the graph is backed by a traceable evidence chain.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
@@ -16,18 +17,21 @@ if TYPE_CHECKING:
 
 class EvidenceData(BaseModel):
     """Primary evidence supporting a graph edge."""
+
     source_entity: str
     target_entity: str
     edge_type: str
-    quote: str                  # Human-readable summary or exact quote
-    exact_quote: str = ""       # Verbatim text from source document
-    quote_type: Literal["exact_quote", "model_normalized", "extracted_claim"] = "exact_quote"
-    doc_url: str                # Source document URL
-    quote_hash: str             # Cryptographic hash for tamper detection
+    quote: str  # Human-readable summary or exact quote
+    exact_quote: str = ""  # Verbatim text from source document
+    quote_type: Literal["exact_quote", "model_normalized", "extracted_claim"] = (
+        "exact_quote"
+    )
+    doc_url: str  # Source document URL
+    quote_hash: str  # Cryptographic hash for tamper detection
     # Domain-specific metadata (optional)
-    source_id: str = ""         # e.g., CIK, DOI, package name
-    filing_type: str = ""       # e.g., "10-K", "USGS Report"
-    section: str = ""           # e.g., "Item 1A. Risk Factors"
+    source_id: str = ""  # e.g., CIK, DOI, package name
+    filing_type: str = ""  # e.g., "10-K", "USGS Report"
+    section: str = ""  # e.g., "Item 1A. Risk Factors"
     temporal_status: str = "ACTIVE"
     filing_date: str = ""
     fiscal_period: str = ""
@@ -35,6 +39,7 @@ class EvidenceData(BaseModel):
 
 class RuleResultModel(BaseModel):
     """Single rule evaluation result."""
+
     rule_id: str
     rule_name: str
     triggered: bool
@@ -45,6 +50,7 @@ class RuleResultModel(BaseModel):
 
 class ScoringData(BaseModel):
     """Deterministic scoring breakdown — no LLM involved."""
+
     policy_id: str
     applied_rules: List[str]
     rule_details: List[RuleResultModel] = []
@@ -57,9 +63,10 @@ class ScoringData(BaseModel):
 
 class CounterEvidence(BaseModel):
     """Evidence that weakens or contradicts the primary claim."""
+
     quote: str
     doc_url: str
-    impact: str                 # e.g., "WEAKENS_MONOPOLY", "DIVERSIFIED_SUPPLY"
+    impact: str  # e.g., "WEAKENS_MONOPOLY", "DIVERSIFIED_SUPPLY"
     source_filing: str = ""
 
 
@@ -74,9 +81,10 @@ class EvidencePacket(BaseModel):
     4. Counter-evidence (anti-cherry-picking safeguard)
     5. (v1+) Structured claim and explainable confidence
     """
+
     graphite_version: str = "1.0"
     claim_hash: str
-    status: str                 # SUPPORTED / WEAK / NOT_FOUND / MIXED_EVIDENCE
+    status: str  # SUPPORTED / WEAK / NOT_FOUND / MIXED_EVIDENCE
     verdict_reason: str = ""
     evidence: Optional[EvidenceData] = None
     scoring: Optional[ScoringData] = None
@@ -94,4 +102,4 @@ class EvidencePacket(BaseModel):
     # Audit metadata
     graph_built_at: str = ""
     data_as_of: str = ""
-    domain: str = ""            # Which domain plugin generated this
+    domain: str = ""  # Which domain plugin generated this

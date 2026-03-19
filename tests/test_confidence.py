@@ -4,6 +4,7 @@ tests/test_confidence.py — Unit tests for the ConfidenceScorer.
 Tests that the scorer produces explainable, deterministic confidence
 scores from claim evidence metadata.
 """
+
 import pytest
 from datetime import datetime, timezone, timedelta
 
@@ -71,25 +72,31 @@ class TestConfidenceScorer:
     def test_multi_source_higher(self):
         """3 sources → higher confidence than 1 source."""
         claim_1 = _claim(supporting_evidence=[_prov("s1")])
-        claim_3 = _claim(supporting_evidence=[
-            _prov("s1"),
-            _prov("s2"),
-            _prov("s3"),
-        ])
+        claim_3 = _claim(
+            supporting_evidence=[
+                _prov("s1"),
+                _prov("s2"),
+                _prov("s3"),
+            ]
+        )
         r1 = self.scorer.score(claim_1)
         r3 = self.scorer.score(claim_3)
         assert r3.score > r1.score
 
     def test_diverse_sources_higher(self):
         """SEC + USGS > SEC + SEC."""
-        claim_same = _claim(supporting_evidence=[
-            _prov("s1", SourceType.SEC_10K),
-            _prov("s2", SourceType.SEC_10K),
-        ])
-        claim_diverse = _claim(supporting_evidence=[
-            _prov("s1", SourceType.SEC_10K),
-            _prov("s2", SourceType.USGS_MCS),
-        ])
+        claim_same = _claim(
+            supporting_evidence=[
+                _prov("s1", SourceType.SEC_10K),
+                _prov("s2", SourceType.SEC_10K),
+            ]
+        )
+        claim_diverse = _claim(
+            supporting_evidence=[
+                _prov("s1", SourceType.SEC_10K),
+                _prov("s2", SourceType.USGS_MCS),
+            ]
+        )
         r_same = self.scorer.score(claim_same)
         r_diverse = self.scorer.score(claim_diverse)
         assert r_diverse.score > r_same.score
@@ -121,7 +128,7 @@ class TestConfidenceScorer:
 
     def test_old_evidence_lower(self):
         """Evidence from 8 years ago → lower confidence."""
-        old_date = (datetime.now(timezone.utc) - timedelta(days=8*365)).isoformat()
+        old_date = (datetime.now(timezone.utc) - timedelta(days=8 * 365)).isoformat()
         new_date = datetime.now(timezone.utc).isoformat()
 
         claim_old = _claim(

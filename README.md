@@ -73,8 +73,8 @@
   Or from source:
 
   ```bash
-  git clone https://github.com/graf-research/graphite.git
-  cd graphite
+  git clone https://github.com/minjun1/graphite-core.git
+  cd graphite-core
   pip install -e ".[llm]"
   export GEMINI_API_KEY="your-api-key-here"
   python examples/quickstart_verification/run.py

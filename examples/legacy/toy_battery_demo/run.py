@@ -6,6 +6,7 @@ Documents → Extract → Assemble → Simulate Shock → Print Results
 
 Run: python examples/toy_battery_demo/run.py
 """
+
 import os
 import sys
 import json
@@ -46,22 +47,26 @@ def main():
         return alphas.get(edge_type, 0.3)
 
     paths, hop_hist = top_k_paths_from_source(
-        G, source="country:CD",
-        max_hops=3, tau_stop=0.05, k=3,
-        is_supply=True, alpha_fn=alpha_fn,
+        G,
+        source="country:CD",
+        max_hops=3,
+        tau_stop=0.05,
+        k=3,
+        is_supply=True,
+        alpha_fn=alpha_fn,
     )
     blast = build_blast_radius(paths, k=3, node_label="entity")
 
     # ── Print results ──
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  🔴 CONGO (Cobalt) Supply Shock — Blast Radius")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     for item in blast:
         tier = item["exposure_tier"]
         score = item["total_exposure"]
         entity = item["entity"]
         print(f"  {tier:>8s} | {score:.1%} | {entity}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # ── Save results for regression testing ──
     output = {

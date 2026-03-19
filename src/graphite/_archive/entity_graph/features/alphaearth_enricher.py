@@ -4,6 +4,7 @@ graphite/features/alphaearth_enricher.py — Attach AlphaEarth embeddings to gra
 Takes a NetworkX graph + node geometry mapping, fetches embeddings
 via AlphaEarthAdapter, and attaches them as node attributes.
 """
+
 import json
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -58,7 +59,12 @@ class AlphaEarthEnricher:
         Returns:
             Stats dict: {"total": int, "enriched": int, "skipped": int, "failed": int}
         """
-        stats = {"total": len(node_geometries), "enriched": 0, "skipped": 0, "failed": 0}
+        stats = {
+            "total": len(node_geometries),
+            "enriched": 0,
+            "skipped": 0,
+            "failed": 0,
+        }
 
         for node_id, geom in node_geometries.items():
             if node_id not in G:

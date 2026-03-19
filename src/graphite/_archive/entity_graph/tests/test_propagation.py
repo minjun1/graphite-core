@@ -4,6 +4,7 @@ tests/test_propagation.py — Tests for the core propagation engine.
 Tests the Dijkstra + Noisy-OR blast radius algorithm
 using a simple synthetic graph (no Neo4j required).
 """
+
 import math
 import networkx as nx
 import pytest
@@ -18,6 +19,7 @@ from graphite.simulate import (
 
 # ── Fixtures ──
 
+
 def _simple_alpha(edge_type: str, is_supply: bool) -> float:
     """Test alpha function: all edges get 0.8 attenuation."""
     return 0.8
@@ -30,8 +32,12 @@ def linear_graph():
     G.add_node("A")
     G.add_node("B")
     G.add_node("C")
-    G.add_edge("A", "B", bucket_weight=0.8, edge_type="SUPPLIES_TO", evidence="A supplies B")
-    G.add_edge("B", "C", bucket_weight=0.6, edge_type="SUPPLIES_TO", evidence="B supplies C")
+    G.add_edge(
+        "A", "B", bucket_weight=0.8, edge_type="SUPPLIES_TO", evidence="A supplies B"
+    )
+    G.add_edge(
+        "B", "C", bucket_weight=0.6, edge_type="SUPPLIES_TO", evidence="B supplies C"
+    )
     return G
 
 
@@ -65,6 +71,7 @@ def cycle_graph():
 
 
 # ── Tests: Helpers ──
+
 
 class TestClamp:
     def test_clamp_within_range(self):
@@ -102,19 +109,30 @@ class TestMapToTier:
 
 # ── Tests: Propagation ──
 
+
 class TestPropagation:
     def test_source_not_in_graph(self, linear_graph):
         paths, hist = top_k_paths_from_source(
-            linear_graph, "NONEXISTENT", max_hops=3, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "NONEXISTENT",
+            max_hops=3,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         assert paths == {}
         assert hist == {1: 0, 2: 0, 3: 0}
 
     def test_linear_1hop(self, linear_graph):
         paths, hist = top_k_paths_from_source(
-            linear_graph, "A", max_hops=1, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=1,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         assert "B" in paths
         assert "C" not in paths  # 2 hops away, max_hops=1
@@ -122,8 +140,13 @@ class TestPropagation:
 
     def test_linear_2hop(self, linear_graph):
         paths, hist = top_k_paths_from_source(
-            linear_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         assert "B" in paths
         assert "C" in paths
@@ -135,8 +158,13 @@ class TestPropagation:
     def test_attenuation_math(self, linear_graph):
         """Verify W_e = W_b * alpha and score = exp(-cost)."""
         paths, _ = top_k_paths_from_source(
-            linear_graph, "A", max_hops=1, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=1,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         b_score = paths["B"][0]["attenuated_score"]
         expected = 0.8 * 0.8  # W_b=0.8, alpha=0.8
@@ -145,8 +173,13 @@ class TestPropagation:
     def test_cycle_terminates(self, cycle_graph):
         """Must not infinite-loop on cycles."""
         paths, _ = top_k_paths_from_source(
-            cycle_graph, "A", max_hops=3, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            cycle_graph,
+            "A",
+            max_hops=3,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         # Should complete without hanging
         assert isinstance(paths, dict)
@@ -154,16 +187,26 @@ class TestPropagation:
     def test_tau_stop_pruning(self, linear_graph):
         """High tau_stop should prune weak paths."""
         paths, _ = top_k_paths_from_source(
-            linear_graph, "A", max_hops=3, tau_stop=0.5,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=3,
+            tau_stop=0.5,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         # B has score 0.64 (> 0.5), C has lower score → might be pruned
         assert "B" in paths
 
     def test_evidence_pack_present(self, linear_graph):
         paths, _ = top_k_paths_from_source(
-            linear_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         for node_paths in paths.values():
             for p in node_paths:
@@ -172,8 +215,13 @@ class TestPropagation:
 
     def test_path_nodes_correct(self, linear_graph):
         paths, _ = top_k_paths_from_source(
-            linear_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         c_path = paths["C"][0]["path_nodes"]
         assert c_path == ["A", "B", "C"]
@@ -181,12 +229,18 @@ class TestPropagation:
 
 # ── Tests: Blast Radius ──
 
+
 class TestBlastRadius:
     def test_noisy_or_aggregation(self, diamond_graph):
         """D reached via 2 paths: Noisy-OR should aggregate."""
         paths, _ = top_k_paths_from_source(
-            diamond_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            diamond_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         blast = build_blast_radius(paths, k=3, node_label="ticker")
 
@@ -204,8 +258,13 @@ class TestBlastRadius:
     def test_noisy_or_formula(self, diamond_graph):
         """Verify: total = 1 - ∏(1 - score_i)."""
         paths, _ = top_k_paths_from_source(
-            diamond_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            diamond_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         blast = build_blast_radius(paths, k=3, node_label="ticker")
 
@@ -214,15 +273,20 @@ class TestBlastRadius:
 
         survival = 1.0
         for s in path_scores:
-            survival *= (1.0 - s)
+            survival *= 1.0 - s
         expected = 1.0 - survival
 
         assert abs(d_entry["total_exposure"] - expected) < 0.001
 
     def test_sorted_by_exposure(self, diamond_graph):
         paths, _ = top_k_paths_from_source(
-            diamond_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            diamond_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         blast = build_blast_radius(paths, k=3, node_label="ticker")
         exposures = [x["total_exposure"] for x in blast]
@@ -230,8 +294,13 @@ class TestBlastRadius:
 
     def test_exposure_tier_assigned(self, diamond_graph):
         paths, _ = top_k_paths_from_source(
-            diamond_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            diamond_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         blast = build_blast_radius(paths, k=3, node_label="ticker")
         for entry in blast:
@@ -239,8 +308,13 @@ class TestBlastRadius:
 
     def test_custom_node_label(self, linear_graph):
         paths, _ = top_k_paths_from_source(
-            linear_graph, "A", max_hops=2, tau_stop=0.01,
-            k=3, is_supply=True, alpha_fn=_simple_alpha,
+            linear_graph,
+            "A",
+            max_hops=2,
+            tau_stop=0.01,
+            k=3,
+            is_supply=True,
+            alpha_fn=_simple_alpha,
         )
         blast = build_blast_radius(paths, k=3, node_label="package")
         for entry in blast:

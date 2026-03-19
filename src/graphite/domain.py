@@ -4,6 +4,7 @@ graphite/domain.py — Plugin contracts and domain registration.
 Defines the interfaces that domain plugins implement (fetchers, extractors,
 pipelines) and the DomainSpec registry for plugin discovery.
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Type
@@ -18,16 +19,23 @@ from .claim import Claim
 
 class ExtractionResult(BaseModel):
     """The complete result of a domain extraction pass."""
-    claims: List[Claim] = Field(default_factory=list, description="Extracted claims")
-    edges: List[ExtractedEdge] = Field(default_factory=list, description="Graph edges (materialized from claims)")
-    diagnostics: Dict[str, Any] = Field(default_factory=dict, description="Telemetry and metrics")
-    unresolvable_count: int = Field(default=0, description="Claims discarded due to vagueness")
 
+    claims: List[Claim] = Field(default_factory=list, description="Extracted claims")
+    edges: List[ExtractedEdge] = Field(
+        default_factory=list, description="Graph edges (materialized from claims)"
+    )
+    diagnostics: Dict[str, Any] = Field(
+        default_factory=dict, description="Telemetry and metrics"
+    )
+    unresolvable_count: int = Field(
+        default=0, description="Claims discarded due to vagueness"
+    )
 
 
 # ═══════════════════════════════════════
 # Document Context
 # ═══════════════════════════════════════
+
 
 @dataclass
 class DocumentContext:
@@ -36,11 +44,12 @@ class DocumentContext:
     This is the universal container passed from fetcher → extractor.
     The extractor chooses its own context strategy.
     """
-    source_id: str              # accession_no, USGS URL, etc.
-    source_type: SourceType     # enum, not string
-    entity_id: str              # ticker, mineral name, etc.
-    text_content: str           # full extracted text
-    paragraphs: List[str]       # split paragraphs
+
+    source_id: str  # accession_no, USGS URL, etc.
+    source_type: SourceType  # enum, not string
+    entity_id: str  # ticker, mineral name, etc.
+    text_content: str  # full extracted text
+    paragraphs: List[str]  # split paragraphs
     doc_url: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -48,6 +57,7 @@ class DocumentContext:
 # ═══════════════════════════════════════
 # Base Interfaces
 # ═══════════════════════════════════════
+
 
 class BaseFetcher(ABC):
     """Fetch and parse documents into DocumentContext objects.
@@ -111,7 +121,7 @@ class BaseExtractor(ABC):
             claims=all_claims,
             edges=all_edges,
             diagnostics=diagnostics,
-            unresolvable_count=unresolvable
+            unresolvable_count=unresolvable,
         )
 
 
@@ -138,6 +148,7 @@ class BasePipeline(ABC):
 # Domain Specification
 # ═══════════════════════════════════════
 
+
 class DomainSpec(BaseModel):
     """Everything needed to register a new supply chain domain.
 
@@ -146,10 +157,9 @@ class DomainSpec(BaseModel):
     2. Register a DomainSpec with allowed types and strategies
     3. Core handles assembly, propagation, evidence
     """
+
     name: str = Field(description="Domain name: 'minerals', 'sec', 'pharma'")
-    allowed_edge_types: List[str] = Field(
-        description="Validated at extraction time"
-    )
+    allowed_edge_types: List[str] = Field(description="Validated at extraction time")
     allowed_node_types: List[NodeType] = Field(
         description="NodeType enum values this domain uses"
     )

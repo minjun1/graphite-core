@@ -4,6 +4,7 @@ tests/test_pipeline_core.py — Unit tests for the core pipeline primitives.
 Tests: NodeRef, ExtractedEdge, Provenance, GraphAssembler (merge/dedupe/quality),
        text strategies, cache, graph_writer roundtrip, DomainSpec registry.
 """
+
 import json
 import os
 import tempfile
@@ -12,29 +13,44 @@ import networkx as nx
 import pytest
 
 from graphite.enums import (
-    AssertionMode, ConfidenceLevel, EdgeType, EvidenceType,
-    NodeType, SourceType,
+    AssertionMode,
+    ConfidenceLevel,
+    EdgeType,
+    EvidenceType,
+    NodeType,
+    SourceType,
 )
 from graphite.schemas import (
-    ExtractedEdge, ExtractionError, InferenceBasis,
-    NodeRef, Provenance,
+    ExtractedEdge,
+    ExtractionError,
+    InferenceBasis,
+    NodeRef,
+    Provenance,
 )
 from graphite.domain import (
-    DomainSpec, register_domain, get_domain, list_domains,
+    DomainSpec,
+    register_domain,
+    get_domain,
+    list_domains,
     DocumentContext,
 )
 from graphite.assembler import GraphAssembler
 from graphite.cache import PipelineCache
 from graphite.io import save_graph, load_graph
 from graphite.text import (
-    build_context, register_strategy, split_into_paragraphs,
-    score_paragraph, find_best_paragraph_for_quote, clip_quote,
+    build_context,
+    register_strategy,
+    split_into_paragraphs,
+    score_paragraph,
+    find_best_paragraph_for_quote,
+    clip_quote,
 )
 
 
 # ═══════════════════════════════════════
 # NodeRef
 # ═══════════════════════════════════════
+
 
 class TestNodeRef:
     def test_company_factory(self):
@@ -89,6 +105,7 @@ class TestNodeRef:
 # Provenance
 # ═══════════════════════════════════════
 
+
 class TestProvenance:
     def test_defaults(self):
         p = Provenance(
@@ -134,6 +151,7 @@ class TestProvenance:
         assert p.observed_at == "2017-08-25T22:00:00Z"
         assert p.snapshot_id == "harvey-2017-snapshot"
 
+
 class TestExtractedEdge:
     def _make_edge(self, from_id="country:CD", to_id="mineral:COBALT", **kwargs):
         return ExtractedEdge(
@@ -141,12 +159,14 @@ class TestExtractedEdge:
             to_node=NodeRef(node_id=to_id, node_type=NodeType.MINERAL),
             edge_type=EdgeType.PRODUCES,
             assertion_mode=AssertionMode.EXTRACTED,
-            provenance=[Provenance(
-                source_id="usgs-cobalt",
-                source_type=SourceType.USGS_MCS,
-                evidence_quote="Congo produces 73% of world cobalt",
-                confidence=ConfidenceLevel.HIGH,
-            )],
+            provenance=[
+                Provenance(
+                    source_id="usgs-cobalt",
+                    source_type=SourceType.USGS_MCS,
+                    evidence_quote="Congo produces 73% of world cobalt",
+                    confidence=ConfidenceLevel.HIGH,
+                )
+            ],
             **kwargs,
         )
 
@@ -170,12 +190,14 @@ class TestExtractedEdge:
                 based_on_edges=["company:TSLA|company:CATL|SUPPLIES_TO"],
                 source_nodes=["company:TSLA"],
             ),
-            provenance=[Provenance(
-                source_id="tsla-10k",
-                source_type=SourceType.SEC_10K,
-                evidence_quote="CATL as primary battery cell supplier",
-                confidence=ConfidenceLevel.HIGH,
-            )],
+            provenance=[
+                Provenance(
+                    source_id="tsla-10k",
+                    source_type=SourceType.SEC_10K,
+                    evidence_quote="CATL as primary battery cell supplier",
+                    confidence=ConfidenceLevel.HIGH,
+                )
+            ],
         )
         assert e.inference_basis.method == "customer_filing_reverse"
         assert len(e.inference_basis.source_nodes) == 1
@@ -185,26 +207,43 @@ class TestExtractedEdge:
 # GraphAssembler
 # ═══════════════════════════════════════
 
+
 class TestGraphAssembler:
-    def _make_edge(self, from_id, to_id, edge_type, source_id, confidence, weight=0.5, **attrs):
+    def _make_edge(
+        self, from_id, to_id, edge_type, source_id, confidence, weight=0.5, **attrs
+    ):
         return ExtractedEdge(
             from_node=NodeRef(node_id=from_id, node_type=NodeType.COUNTRY),
             to_node=NodeRef(node_id=to_id, node_type=NodeType.MINERAL),
             edge_type=edge_type,
             assertion_mode=AssertionMode.EXTRACTED,
             attributes={"bucket_weight": weight, **attrs},
-            provenance=[Provenance(
-                source_id=source_id,
-                source_type=SourceType.USGS_MCS,
-                evidence_quote=f"Test quote for {from_id} → {to_id}",
-                confidence=confidence,
-            )],
+            provenance=[
+                Provenance(
+                    source_id=source_id,
+                    source_type=SourceType.USGS_MCS,
+                    evidence_quote=f"Test quote for {from_id} → {to_id}",
+                    confidence=confidence,
+                )
+            ],
         )
 
     def test_basic_assembly(self):
         edges = [
-            self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "usgs1", ConfidenceLevel.HIGH),
-            self._make_edge("country:AU", "mineral:LITHIUM", "PRODUCES", "usgs2", ConfidenceLevel.HIGH),
+            self._make_edge(
+                "country:CD",
+                "mineral:COBALT",
+                "PRODUCES",
+                "usgs1",
+                ConfidenceLevel.HIGH,
+            ),
+            self._make_edge(
+                "country:AU",
+                "mineral:LITHIUM",
+                "PRODUCES",
+                "usgs2",
+                ConfidenceLevel.HIGH,
+            ),
         ]
         asm = GraphAssembler()
         G = asm.assemble(edges)
@@ -212,8 +251,16 @@ class TestGraphAssembler:
         assert G.number_of_edges() == 2
 
     def test_dedupe_merges_provenance(self):
-        e1 = self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "src_usgs", ConfidenceLevel.HIGH)
-        e2 = self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "src_sec", ConfidenceLevel.MEDIUM)
+        e1 = self._make_edge(
+            "country:CD", "mineral:COBALT", "PRODUCES", "src_usgs", ConfidenceLevel.HIGH
+        )
+        e2 = self._make_edge(
+            "country:CD",
+            "mineral:COBALT",
+            "PRODUCES",
+            "src_sec",
+            ConfidenceLevel.MEDIUM,
+        )
 
         asm = GraphAssembler()
         deduped = asm.dedupe_edges([e1, e2])
@@ -221,8 +268,22 @@ class TestGraphAssembler:
         assert len(deduped[0].provenance) == 2
 
     def test_conflict_tracking(self):
-        e1 = self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "src1", ConfidenceLevel.HIGH, production_pct=73)
-        e2 = self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "src2", ConfidenceLevel.MEDIUM, production_pct=71)
+        e1 = self._make_edge(
+            "country:CD",
+            "mineral:COBALT",
+            "PRODUCES",
+            "src1",
+            ConfidenceLevel.HIGH,
+            production_pct=73,
+        )
+        e2 = self._make_edge(
+            "country:CD",
+            "mineral:COBALT",
+            "PRODUCES",
+            "src2",
+            ConfidenceLevel.MEDIUM,
+            production_pct=71,
+        )
 
         asm = GraphAssembler()
         deduped = asm.dedupe_edges([e1, e2])
@@ -238,20 +299,28 @@ class TestGraphAssembler:
             to_node=NodeRef.mineral("COBALT"),
             edge_type="PRODUCES",
             assertion_mode=AssertionMode.SEEDED,
-            provenance=[Provenance(
-                source_id="seed", source_type=SourceType.MANUAL,
-                evidence_quote="seed data", confidence=ConfidenceLevel.LOW,
-            )],
+            provenance=[
+                Provenance(
+                    source_id="seed",
+                    source_type=SourceType.MANUAL,
+                    evidence_quote="seed data",
+                    confidence=ConfidenceLevel.LOW,
+                )
+            ],
         )
         e2 = ExtractedEdge(
             from_node=NodeRef.country("CD"),
             to_node=NodeRef.mineral("COBALT"),
             edge_type="PRODUCES",
             assertion_mode=AssertionMode.EXTRACTED,
-            provenance=[Provenance(
-                source_id="usgs", source_type=SourceType.USGS_MCS,
-                evidence_quote="Congo produces 73%", confidence=ConfidenceLevel.HIGH,
-            )],
+            provenance=[
+                Provenance(
+                    source_id="usgs",
+                    source_type=SourceType.USGS_MCS,
+                    evidence_quote="Congo produces 73%",
+                    confidence=ConfidenceLevel.HIGH,
+                )
+            ],
         )
         asm = GraphAssembler()
         deduped = asm.dedupe_edges([e1, e2])
@@ -276,14 +345,24 @@ class TestGraphAssembler:
             allowed_edge_types=["PRODUCES", "REFINED_BY"],
             allowed_node_types=[NodeType.COUNTRY, NodeType.MINERAL],
         )
-        e = self._make_edge("country:CD", "mineral:COBALT", "INVALID_TYPE", "src", ConfidenceLevel.HIGH)
+        e = self._make_edge(
+            "country:CD", "mineral:COBALT", "INVALID_TYPE", "src", ConfidenceLevel.HIGH
+        )
         asm = GraphAssembler(domain_spec=spec)
         G = asm.assemble([e])
         assert G.number_of_edges() == 0
         assert len(asm.errors) == 1
 
     def test_graph_stamping(self):
-        edges = [self._make_edge("country:CD", "mineral:COBALT", "PRODUCES", "usgs1", ConfidenceLevel.HIGH)]
+        edges = [
+            self._make_edge(
+                "country:CD",
+                "mineral:COBALT",
+                "PRODUCES",
+                "usgs1",
+                ConfidenceLevel.HIGH,
+            )
+        ]
         asm = GraphAssembler(pipeline_version="2.0")
         G = asm.assemble(edges)
         assert G.graph["pipeline_version"] == "2.0"
@@ -295,6 +374,7 @@ class TestGraphAssembler:
 # ═══════════════════════════════════════
 # Text Strategies
 # ═══════════════════════════════════════
+
 
 class TestTextStrategies:
     def test_split_paragraphs(self):
@@ -336,8 +416,11 @@ class TestTextStrategies:
 
         register_strategy("test_custom", _custom)
         doc = DocumentContext(
-            source_id="t", source_type=SourceType.MANUAL,
-            entity_id="X", text_content="", paragraphs=["A", "B", "C"],
+            source_id="t",
+            source_type=SourceType.MANUAL,
+            entity_id="X",
+            text_content="",
+            paragraphs=["A", "B", "C"],
         )
         ctx = build_context(doc, strategy="test_custom")
         assert ctx.startswith("CUSTOM:")
@@ -358,6 +441,7 @@ class TestTextStrategies:
 # ═══════════════════════════════════════
 # Cache
 # ═══════════════════════════════════════
+
 
 class TestCache:
     def test_roundtrip(self):
@@ -384,6 +468,7 @@ class TestCache:
 # Graph Writer Roundtrip
 # ═══════════════════════════════════════
 
+
 class TestGraphWriter:
     def _make_graph(self):
         edges = [
@@ -393,12 +478,14 @@ class TestGraphWriter:
                 edge_type="PRODUCES",
                 assertion_mode=AssertionMode.EXTRACTED,
                 attributes={"production_pct": 73, "bucket_weight": 0.8},
-                provenance=[Provenance(
-                    source_id="usgs-cobalt",
-                    source_type=SourceType.USGS_MCS,
-                    evidence_quote="Congo produces 73% of world cobalt",
-                    confidence=ConfidenceLevel.HIGH,
-                )],
+                provenance=[
+                    Provenance(
+                        source_id="usgs-cobalt",
+                        source_type=SourceType.USGS_MCS,
+                        evidence_quote="Congo produces 73% of world cobalt",
+                        confidence=ConfidenceLevel.HIGH,
+                    )
+                ],
             ),
         ]
         asm = GraphAssembler()
@@ -439,6 +526,7 @@ class TestGraphWriter:
 # ═══════════════════════════════════════
 # DomainSpec Registry
 # ═══════════════════════════════════════
+
 
 class TestDomainRegistry:
     def test_register_and_get(self):

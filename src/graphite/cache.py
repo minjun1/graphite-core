@@ -4,6 +4,7 @@ graphite/cache.py — Extraction result caching.
 5-part cache key prevents pollution when anything changes:
   (source_id, content_hash, extractor_version, prompt_version, model_name)
 """
+
 import hashlib
 import json
 import os

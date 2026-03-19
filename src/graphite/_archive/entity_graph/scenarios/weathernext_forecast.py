@@ -5,6 +5,7 @@ Transforms weather forecast fields (wind speed, precipitation, pressure)
 into Graphite ScenarioShock objects with intensity proportional to
 forecast severity.
 """
+
 from typing import Any, Dict, List, Optional
 
 from ..enums import SourceType
@@ -14,15 +15,15 @@ from ..scenario import ScenarioShock
 # ── Hazard thresholds (based on Saffir-Simpson and NWS standards) ──
 DEFAULT_THRESHOLDS = {
     "wind_speed_ms": {
-        "tropical_storm": 17.5,     # 39 mph — TS threshold
-        "hurricane_cat1": 33.0,     # 74 mph — Cat 1
-        "hurricane_cat2": 43.0,     # 96 mph — Cat 2
-        "hurricane_cat3": 50.0,     # 111 mph — Cat 3
+        "tropical_storm": 17.5,  # 39 mph — TS threshold
+        "hurricane_cat1": 33.0,  # 74 mph — Cat 1
+        "hurricane_cat2": 43.0,  # 96 mph — Cat 2
+        "hurricane_cat3": 50.0,  # 111 mph — Cat 3
     },
     "precipitation_mm": {
-        "moderate": 50.0,           # 2 inches
-        "heavy": 100.0,             # 4 inches
-        "extreme": 200.0,           # 8 inches
+        "moderate": 50.0,  # 2 inches
+        "heavy": 100.0,  # 4 inches
+        "extreme": 200.0,  # 8 inches
     },
 }
 
@@ -125,16 +126,18 @@ def forecast_to_scenario_shocks(
             )
 
     if target_nodes:
-        shocks.append(ScenarioShock(
-            shock_id=event_name,
-            target_nodes=target_nodes,
-            intensity=round(max_intensity, 3),
-            observed_at=init_time,
-            evidence=(
-                f"WeatherNext 2 forecast (experimental, init {init_time}): "
-                + "; ".join(evidence_parts[:5])
-            ),
-            source_type=SourceType.WEATHER_FORECAST,
-        ))
+        shocks.append(
+            ScenarioShock(
+                shock_id=event_name,
+                target_nodes=target_nodes,
+                intensity=round(max_intensity, 3),
+                observed_at=init_time,
+                evidence=(
+                    f"WeatherNext 2 forecast (experimental, init {init_time}): "
+                    + "; ".join(evidence_parts[:5])
+                ),
+                source_type=SourceType.WEATHER_FORECAST,
+            )
+        )
 
     return shocks

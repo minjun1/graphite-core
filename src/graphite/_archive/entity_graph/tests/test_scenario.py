@@ -7,6 +7,7 @@ Verifies that the thin scenario orchestration layer correctly:
 - Scales by shock intensity
 - Produces valid blast radius output
 """
+
 import math
 import networkx as nx
 import pytest
@@ -16,6 +17,7 @@ from graphite.enums import SourceType
 
 
 # ── Fixtures ──
+
 
 def _simple_alpha(edge_type: str, is_supply: bool) -> float:
     """Test alpha function: all edges get 0.7 attenuation."""
@@ -40,27 +42,44 @@ def infrastructure_graph():
     G.add_node("company:CHEMICAL_CO", entity="company:CHEMICAL_CO")
     G.add_node("facility:GRID_NODE", entity="facility:GRID_NODE")
 
-    G.add_edge("region:HOUSTON", "facility:PORT",
-               bucket_weight=0.8, edge_type="RISK_FLOWS_TO",
-               cost=-math.log(0.8 * 0.7),
-               evidence="Port shut for 6 days during Harvey")
-    G.add_edge("facility:PORT", "facility:REFINERY",
-               bucket_weight=0.6, edge_type="RISK_FLOWS_TO",
-               cost=-math.log(0.6 * 0.7),
-               evidence="Refinery depends on port for crude delivery")
-    G.add_edge("facility:REFINERY", "company:CHEMICAL_CO",
-               bucket_weight=0.5, edge_type="RISK_FLOWS_TO",
-               cost=-math.log(0.5 * 0.7),
-               evidence="Chemical Co sources feedstock from refinery")
-    G.add_edge("region:HOUSTON", "facility:GRID_NODE",
-               bucket_weight=0.7, edge_type="RISK_FLOWS_TO",
-               cost=-math.log(0.7 * 0.7),
-               evidence="Grid node located in Houston flood zone")
+    G.add_edge(
+        "region:HOUSTON",
+        "facility:PORT",
+        bucket_weight=0.8,
+        edge_type="RISK_FLOWS_TO",
+        cost=-math.log(0.8 * 0.7),
+        evidence="Port shut for 6 days during Harvey",
+    )
+    G.add_edge(
+        "facility:PORT",
+        "facility:REFINERY",
+        bucket_weight=0.6,
+        edge_type="RISK_FLOWS_TO",
+        cost=-math.log(0.6 * 0.7),
+        evidence="Refinery depends on port for crude delivery",
+    )
+    G.add_edge(
+        "facility:REFINERY",
+        "company:CHEMICAL_CO",
+        bucket_weight=0.5,
+        edge_type="RISK_FLOWS_TO",
+        cost=-math.log(0.5 * 0.7),
+        evidence="Chemical Co sources feedstock from refinery",
+    )
+    G.add_edge(
+        "region:HOUSTON",
+        "facility:GRID_NODE",
+        bucket_weight=0.7,
+        edge_type="RISK_FLOWS_TO",
+        cost=-math.log(0.7 * 0.7),
+        evidence="Grid node located in Houston flood zone",
+    )
 
     return G
 
 
 # ── Tests ──
+
 
 class TestScenarioShock:
     def test_defaults(self):
@@ -90,11 +109,13 @@ class TestScenarioRunner:
         runner = ScenarioRunner()
         result = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="harvey",
-                target_nodes=["region:HOUSTON"],
-                intensity=0.85,
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="harvey",
+                    target_nodes=["region:HOUSTON"],
+                    intensity=0.85,
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )
@@ -111,11 +132,13 @@ class TestScenarioRunner:
         runner = ScenarioRunner()
         result = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="dual-shock",
-                target_nodes=["region:HOUSTON"],
-                intensity=0.9,
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="dual-shock",
+                    target_nodes=["region:HOUSTON"],
+                    intensity=0.9,
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )
@@ -130,11 +153,13 @@ class TestScenarioRunner:
         # Run with high intensity
         result_high = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="strong",
-                target_nodes=["region:HOUSTON"],
-                intensity=1.0,
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="strong",
+                    target_nodes=["region:HOUSTON"],
+                    intensity=1.0,
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )
@@ -142,11 +167,13 @@ class TestScenarioRunner:
         # Run with low intensity
         result_low = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="weak",
-                target_nodes=["region:HOUSTON"],
-                intensity=0.3,
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="weak",
+                    target_nodes=["region:HOUSTON"],
+                    intensity=0.3,
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )
@@ -158,16 +185,20 @@ class TestScenarioRunner:
                     return item["total_exposure"]
             return 0.0
 
-        assert get_exposure(result_high, "facility:PORT") > get_exposure(result_low, "facility:PORT")
+        assert get_exposure(result_high, "facility:PORT") > get_exposure(
+            result_low, "facility:PORT"
+        )
 
     def test_nonexistent_source_graceful(self, infrastructure_graph):
         runner = ScenarioRunner()
         result = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="missing",
-                target_nodes=["region:NONEXISTENT"],
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="missing",
+                    target_nodes=["region:NONEXISTENT"],
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )
@@ -179,13 +210,15 @@ class TestScenarioRunner:
         runner = ScenarioRunner()
         result = runner.run(
             infrastructure_graph,
-            shocks=[ScenarioShock(
-                shock_id="harvey",
-                target_nodes=["region:HOUSTON"],
-                intensity=0.85,
-                observed_at="2017-08-25",
-                evidence="Cat 4 hurricane",
-            )],
+            shocks=[
+                ScenarioShock(
+                    shock_id="harvey",
+                    target_nodes=["region:HOUSTON"],
+                    intensity=0.85,
+                    observed_at="2017-08-25",
+                    evidence="Cat 4 hurricane",
+                )
+            ],
             max_hops=4,
             alpha_fn=_simple_alpha,
         )

@@ -12,6 +12,7 @@ Level 2 is the stronger effect: it changes which paths are explored
 and how much risk flows through each edge. This is what makes
 AlphaEarth a real signal, not cosmetic.
 """
+
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import networkx as nx
@@ -98,8 +99,7 @@ def make_embedding_aware_alpha(
         type_similarities.setdefault(etype, []).append(sim)
 
     type_mean_sim = {
-        etype: sum(sims) / len(sims)
-        for etype, sims in type_similarities.items()
+        etype: sum(sims) / len(sims) for etype, sims in type_similarities.items()
     }
 
     def embedding_alpha(edge_type: str, is_supply: bool) -> float:
@@ -167,7 +167,9 @@ def adjust_blast_radius(
         original_exposure = item["total_exposure"]
         sim = similarity_scores.get(entity, 0.5)
 
-        adjusted_exposure = (1 - weight) * original_exposure + weight * (original_exposure * sim * 2)
+        adjusted_exposure = (1 - weight) * original_exposure + weight * (
+            original_exposure * sim * 2
+        )
         adjusted_exposure = max(0.0, min(1.0, adjusted_exposure))
 
         new_item = dict(item)

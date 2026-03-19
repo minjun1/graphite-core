@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphite-engine"
-version = "0.3.1"
+version = "0.3.2"
 description = "Open-source claim verification engine for agent-generated assertions in high-stakes domains"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,13 +37,14 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/graf-research/graphite"
-Documentation = "https://github.com/graf-research/graphite#readme"
-Repository = "https://github.com/graf-research/graphite"
-Issues = "https://github.com/graf-research/graphite/issues"
+Homepage = "https://github.com/minjun1/graphite-core"
+Documentation = "https://github.com/minjun1/graphite-core#readme"
+Repository = "https://github.com/minjun1/graphite-core"
+Issues = "https://github.com/minjun1/graphite-core/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["graphite._archive", "graphite._archive.*"]
 
 [tool.setuptools.package-data]
 graphite = ["py.typed"]

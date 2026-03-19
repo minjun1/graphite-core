@@ -5,6 +5,7 @@ Manages an in-memory NetworkX DiGraph with optional Neo4j and file-based loading
 Domain plugins configure what Cypher queries to run and how to
 map Neo4j records to NetworkX edges.
 """
+
 import hashlib
 import html
 import json
@@ -69,7 +70,10 @@ class GraphStore:
         """Lazy Neo4j driver — only connects when first accessed."""
         if self._driver is None:
             from neo4j import GraphDatabase
-            uri = self._neo4j_uri or os.environ.get("NEO4J_URI", "bolt://localhost:7687")
+
+            uri = self._neo4j_uri or os.environ.get(
+                "NEO4J_URI", "bolt://localhost:7687"
+            )
             user = self._neo4j_user or os.environ.get("NEO4J_USER", "neo4j")
             password = self._neo4j_password or os.environ.get("NEO4J_PASSWORD", "")
             self._driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -82,6 +86,7 @@ class GraphStore:
             path: Path to a .json or .graphml graph file
         """
         from .io import load_graph
+
         self.G = load_graph(path)
         self.loaded_at = int(time.time())
         self.graph_built_at = self.G.graph.get(
@@ -91,7 +96,9 @@ class GraphStore:
 
     def load_aliases(self, aliases: Dict[str, str], meta: Dict[str, Dict] = None):
         """Load entity alias mapping (e.g., GOOG → GOOGL)."""
-        self._aliases = {k.upper().strip(): v.upper().strip() for k, v in aliases.items()}
+        self._aliases = {
+            k.upper().strip(): v.upper().strip() for k, v in aliases.items()
+        }
         if meta:
             self._node_meta = {k.upper().strip(): v for k, v in meta.items()}
 

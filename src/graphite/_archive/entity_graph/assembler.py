@@ -11,6 +11,7 @@ Responsibilities:
   - Collect extraction errors
   - Stamp graph metadata
 """
+
 import json
 import math
 from collections import defaultdict
@@ -151,8 +152,12 @@ class GraphAssembler:
                 [p.model_dump() for p in edge.provenance], default=str
             )
             edge_attrs["provenance_count"] = len(edge.provenance)
-            edge_attrs["evidence"] = edge.provenance[0].evidence_quote if edge.provenance else ""
-            edge_attrs["data_source"] = edge.provenance[0].source_type.value if edge.provenance else ""
+            edge_attrs["evidence"] = (
+                edge.provenance[0].evidence_quote if edge.provenance else ""
+            )
+            edge_attrs["data_source"] = (
+                edge.provenance[0].source_type.value if edge.provenance else ""
+            )
 
             # Inference basis
             if edge.inference_basis:
@@ -209,17 +214,21 @@ class GraphAssembler:
                 existing_rv = merged_attrs.get(rv_key, [])
                 if not existing_rv:
                     a_prov = a.provenance[0] if a.provenance else None
-                    existing_rv.append({
-                        "value": merged_attrs[k],
-                        "source": a_prov.source_type.value if a_prov else "unknown",
-                        "confidence": a_prov.confidence.value if a_prov else "LOW",
-                    })
+                    existing_rv.append(
+                        {
+                            "value": merged_attrs[k],
+                            "source": a_prov.source_type.value if a_prov else "unknown",
+                            "confidence": a_prov.confidence.value if a_prov else "LOW",
+                        }
+                    )
                 b_prov = b.provenance[0] if b.provenance else None
-                existing_rv.append({
-                    "value": v,
-                    "source": b_prov.source_type.value if b_prov else "unknown",
-                    "confidence": b_prov.confidence.value if b_prov else "LOW",
-                })
+                existing_rv.append(
+                    {
+                        "value": v,
+                        "source": b_prov.source_type.value if b_prov else "unknown",
+                        "confidence": b_prov.confidence.value if b_prov else "LOW",
+                    }
+                )
                 merged_attrs[rv_key] = existing_rv
 
                 a_score = max((_provenance_score(p) for p in a.provenance), default=0)
@@ -243,7 +252,9 @@ class GraphAssembler:
 
     def _validate_edge_types(self, edges: List[ExtractedEdge]) -> List[ExtractedEdge]:
         """Check edge types against domain registry."""
-        allowed = set(self.domain_spec.allowed_edge_types) if self.domain_spec else set()
+        allowed = (
+            set(self.domain_spec.allowed_edge_types) if self.domain_spec else set()
+        )
         if not allowed:
             return edges
 
@@ -252,12 +263,16 @@ class GraphAssembler:
             if edge.edge_type in allowed:
                 valid.append(edge)
             else:
-                self.errors.append(ExtractionError(
-                    entity_id=edge.from_node.node_id,
-                    source_type=edge.provenance[0].source_type if edge.provenance else SourceType.MANUAL,
-                    error_type="validation_failed",
-                    message=f"Edge type '{edge.edge_type}' not in domain allowed types: {allowed}",
-                ))
+                self.errors.append(
+                    ExtractionError(
+                        entity_id=edge.from_node.node_id,
+                        source_type=edge.provenance[0].source_type
+                        if edge.provenance
+                        else SourceType.MANUAL,
+                        error_type="validation_failed",
+                        message=f"Edge type '{edge.edge_type}' not in domain allowed types: {allowed}",
+                    )
+                )
         return valid
 
     def _quality_filter(self, edges: List[ExtractedEdge]) -> List[ExtractedEdge]:
@@ -265,16 +280,20 @@ class GraphAssembler:
         filtered = []
         for edge in edges:
             if self.drop_zero_provenance and not edge.provenance:
-                self.errors.append(ExtractionError(
-                    entity_id=edge.from_node.node_id,
-                    source_type=SourceType.MANUAL,
-                    error_type="no_edges",
-                    message=f"Edge {edge.edge_key} dropped: zero provenance",
-                ))
+                self.errors.append(
+                    ExtractionError(
+                        entity_id=edge.from_node.node_id,
+                        source_type=SourceType.MANUAL,
+                        error_type="no_edges",
+                        message=f"Edge {edge.edge_key} dropped: zero provenance",
+                    )
+                )
                 continue
-            if (self.drop_low_inferred
-                    and edge.assertion_mode == AssertionMode.INFERRED
-                    and edge.best_confidence == ConfidenceLevel.LOW):
+            if (
+                self.drop_low_inferred
+                and edge.assertion_mode == AssertionMode.INFERRED
+                and edge.best_confidence == ConfidenceLevel.LOW
+            ):
                 continue
             filtered.append(edge)
         return filtered

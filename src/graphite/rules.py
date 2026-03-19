@@ -5,6 +5,7 @@ Each domain defines rules that adjust edge scores based on evidence quality.
 The rule engine is deterministic: same input always produces same output.
 No LLM is involved at scoring time.
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
@@ -13,6 +14,7 @@ from typing import List, Dict, Any, Optional
 @dataclass
 class RuleResult:
     """Result from evaluating a single rule against an edge."""
+
     rule_id: str
     rule_name: str
     triggered: bool
@@ -24,6 +26,7 @@ class RuleResult:
 @dataclass
 class ScoreBreakdown:
     """Complete scoring output for an edge."""
+
     base_score: float
     rule_results: List[RuleResult] = field(default_factory=list)
     final_score: float = 0.0

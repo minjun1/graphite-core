@@ -7,6 +7,7 @@ how a disruption at one node cascades through a supply chain graph.
 This is Graphite's core differentiator: mathematical blast radius simulation
 with full evidence traceability.
 """
+
 import math
 import heapq
 import networkx as nx
@@ -94,7 +95,9 @@ def top_k_paths_from_source(
         if nodes_visited > 10000:
             break
 
-        cost_so_far, hops, node, path_nodes, breakdown, evidence_pack = heapq.heappop(heap)
+        cost_so_far, hops, node, path_nodes, breakdown, evidence_pack = heapq.heappop(
+            heap
+        )
 
         if hops > 0:
             score = math.exp(-cost_so_far)
@@ -111,14 +114,22 @@ def top_k_paths_from_source(
             if len(arr) > k:
                 arr.pop()
 
-            safe_path_nodes = path_nodes if isinstance(path_nodes, list) else [source, node]
+            safe_path_nodes = (
+                path_nodes if isinstance(path_nodes, list) else [source, node]
+            )
 
-            results.setdefault(node, []).append({
-                "path_nodes": safe_path_nodes if is_supply else list(reversed(safe_path_nodes)),
-                "attenuated_score": float(score),
-                "path_score_breakdown": breakdown,
-                "evidence_pack": evidence_pack if isinstance(evidence_pack, list) else [],
-            })
+            results.setdefault(node, []).append(
+                {
+                    "path_nodes": safe_path_nodes
+                    if is_supply
+                    else list(reversed(safe_path_nodes)),
+                    "attenuated_score": float(score),
+                    "path_score_breakdown": breakdown,
+                    "evidence_pack": evidence_pack
+                    if isinstance(evidence_pack, list)
+                    else [],
+                }
+            )
             # Deterministic tie-breaking: highest score, shortest path, lexicographic
             results[node].sort(
                 key=lambda x: (
@@ -166,13 +177,15 @@ def top_k_paths_from_source(
 
             orig_s, orig_b = (node, nbr) if is_supply else (nbr, node)
 
-            new_breakdown = breakdown + [{
-                "hop": hops + 1,
-                "target": nbr,
-                "bucket": round(w_b, 3),
-                "alpha": round(alpha, 3),
-                "attenuation": round(w_e, 3),
-            }]
+            new_breakdown = breakdown + [
+                {
+                    "hop": hops + 1,
+                    "target": nbr,
+                    "bucket": round(w_b, 3),
+                    "alpha": round(alpha, 3),
+                    "attenuation": round(w_e, 3),
+                }
+            ]
 
             # Build evidence entry (domain-specific or generic)
             if make_evidence_fn:
@@ -191,7 +204,14 @@ def top_k_paths_from_source(
 
             heapq.heappush(
                 heap,
-                (new_cost, hops + 1, nbr, path_nodes + [nbr], new_breakdown, new_evidence),
+                (
+                    new_cost,
+                    hops + 1,
+                    nbr,
+                    path_nodes + [nbr],
+                    new_breakdown,
+                    new_evidence,
+                ),
             )
 
     results.pop(source, None)
@@ -233,12 +253,14 @@ def build_blast_radius(
             survival *= 1.0 - clamp(float(p.get("attenuated_score", 0.0)), 0.0, 0.999)
         total_exposure = 1.0 - survival
 
-        blast_radius.append({
-            node_label: node,
-            "exposure_tier": map_to_tier(total_exposure, tier_thresholds),
-            "total_exposure": float(total_exposure),
-            "top_paths": top_paths,
-        })
+        blast_radius.append(
+            {
+                node_label: node,
+                "exposure_tier": map_to_tier(total_exposure, tier_thresholds),
+                "total_exposure": float(total_exposure),
+                "top_paths": top_paths,
+            }
+        )
 
     # Sort: highest exposure first, then lexicographic
     blast_radius.sort(key=lambda x: (-x["total_exposure"], x[node_label]))

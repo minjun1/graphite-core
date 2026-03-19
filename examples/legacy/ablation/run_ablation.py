@@ -10,6 +10,7 @@ Runs Harvey demo in 4 modes and compares results:
 
 This proves AlphaEarth is a real signal, not cosmetic.
 """
+
 import os
 import sys
 import json
@@ -20,8 +21,10 @@ from graphite import GraphAssembler, ScenarioShock, ScenarioRunner
 from graphite.enums import SourceType
 from graphite.features.alphaearth_enricher import AlphaEarthEnricher
 from graphite.features.embedding_similarity import (
-    compute_similarity_scores, adjust_blast_radius,
-    inject_edge_similarity, make_embedding_aware_alpha,
+    compute_similarity_scores,
+    adjust_blast_radius,
+    inject_edge_similarity,
+    make_embedding_aware_alpha,
 )
 from extractor import extract_from_documents
 
@@ -47,8 +50,15 @@ def run_scenario(G, alpha_fn):
         source_type=SourceType.WEATHER_FORECAST,
     )
     runner = ScenarioRunner()
-    return runner.run(G, shocks=[harvey], max_hops=5, tau_stop=0.03,
-                      k=5, is_supply=True, alpha_fn=alpha_fn)
+    return runner.run(
+        G,
+        shocks=[harvey],
+        max_hops=5,
+        tau_stop=0.03,
+        k=5,
+        is_supply=True,
+        alpha_fn=alpha_fn,
+    )
 
 
 def print_row(label, blast, entity):
@@ -112,14 +122,24 @@ def main():
     print("  How much does AlphaEarth embedding signal change the blast radius?")
     print("=" * 88)
     print()
-    print(f"  {'ENTITY':<42s} | {'(A)':>6s} | {'(B)':>6s} | {'(C)':>6s} | {'(D)':>6s} | {'Δ A→D':>7s}")
+    print(
+        f"  {'ENTITY':<42s} | {'(A)':>6s} | {'(B)':>6s} | {'(C)':>6s} | {'(D)':>6s} | {'Δ A→D':>7s}"
+    )
     print(f"  {'':-<42s} | {'':-<6s} | {'':-<6s} | {'':-<6s} | {'':-<6s} | {'':-<7s}")
 
     for entity in entities:
-        a_val = next((i["total_exposure"] for i in blast_a if i["entity"] == entity), None)
-        b_val = next((i["total_exposure"] for i in blast_b if i["entity"] == entity), None)
-        c_val = next((i["total_exposure"] for i in blast_c if i["entity"] == entity), None)
-        d_val = next((i["total_exposure"] for i in blast_d if i["entity"] == entity), None)
+        a_val = next(
+            (i["total_exposure"] for i in blast_a if i["entity"] == entity), None
+        )
+        b_val = next(
+            (i["total_exposure"] for i in blast_b if i["entity"] == entity), None
+        )
+        c_val = next(
+            (i["total_exposure"] for i in blast_c if i["entity"] == entity), None
+        )
+        d_val = next(
+            (i["total_exposure"] for i in blast_d if i["entity"] == entity), None
+        )
 
         if a_val is not None and d_val is not None:
             delta = d_val - a_val
@@ -132,7 +152,9 @@ def main():
         c_s = f"{c_val:5.1%}" if c_val else "  N/A"
         d_s = f"{d_val:5.1%}" if d_val else "  N/A"
 
-        print(f"  {entity:<42s} | {a_s:>6s} | {b_s:>6s} | {c_s:>6s} | {d_s:>6s} | {delta_str:>7s}")
+        print(
+            f"  {entity:<42s} | {a_s:>6s} | {b_s:>6s} | {c_s:>6s} | {d_s:>6s} | {delta_str:>7s}"
+        )
 
     print()
     print("  Legend:")
@@ -147,11 +169,23 @@ def main():
     output = {
         "ablation": "alphaearth_embedding_impact",
         "modes": {
-            "A_base": [{"entity": i["entity"], "exposure": round(i["total_exposure"], 4)} for i in blast_a],
-            "B_posthoc": [{"entity": i["entity"], "exposure": round(i["total_exposure"], 4)} for i in blast_b],
-            "C_structural": [{"entity": i["entity"], "exposure": round(i["total_exposure"], 4)} for i in blast_c],
-            "D_combined": [{"entity": i["entity"], "exposure": round(i["total_exposure"], 4)} for i in blast_d],
-        }
+            "A_base": [
+                {"entity": i["entity"], "exposure": round(i["total_exposure"], 4)}
+                for i in blast_a
+            ],
+            "B_posthoc": [
+                {"entity": i["entity"], "exposure": round(i["total_exposure"], 4)}
+                for i in blast_b
+            ],
+            "C_structural": [
+                {"entity": i["entity"], "exposure": round(i["total_exposure"], 4)}
+                for i in blast_c
+            ],
+            "D_combined": [
+                {"entity": i["entity"], "exposure": round(i["total_exposure"], 4)}
+                for i in blast_d
+            ],
+        },
     }
     out_path = os.path.join(os.path.dirname(__file__), "ablation_results.json")
     with open(out_path, "w") as f:

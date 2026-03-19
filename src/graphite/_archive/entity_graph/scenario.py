@@ -7,6 +7,7 @@ and propagated through the graph to produce an impacted subgraph.
 
 v1: shock inject → propagate → return blast radius. No branching, no comparison.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -34,11 +35,12 @@ class ScenarioShock:
             source_type=SourceType.WEATHER_FORECAST,
         )
     """
-    shock_id: str               # unique identifier, e.g. "hurricane_harvey_2017"
-    target_nodes: List[str]     # graph nodes receiving the initial shock
-    intensity: float = 0.85     # 0.0–1.0 shock strength
-    observed_at: str = ""       # when the event occurred / was forecast
-    evidence: str = ""          # source evidence backing this shock
+
+    shock_id: str  # unique identifier, e.g. "hurricane_harvey_2017"
+    target_nodes: List[str]  # graph nodes receiving the initial shock
+    intensity: float = 0.85  # 0.0–1.0 shock strength
+    observed_at: str = ""  # when the event occurred / was forecast
+    evidence: str = ""  # source evidence backing this shock
     source_type: SourceType = SourceType.PUBLIC_REPORT
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -108,13 +110,15 @@ class ScenarioRunner:
 
         shock_meta = []
         for shock in shocks:
-            shock_meta.append({
-                "shock_id": shock.shock_id,
-                "target_nodes": shock.target_nodes,
-                "intensity": shock.intensity,
-                "observed_at": shock.observed_at,
-                "evidence": shock.evidence,
-            })
+            shock_meta.append(
+                {
+                    "shock_id": shock.shock_id,
+                    "target_nodes": shock.target_nodes,
+                    "intensity": shock.intensity,
+                    "observed_at": shock.observed_at,
+                    "evidence": shock.evidence,
+                }
+            )
 
             for source_node in shock.target_nodes:
                 if source_node not in G:

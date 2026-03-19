@@ -1,6 +1,7 @@
 """
 graphite/pipeline/__init__.py — Exposes the LLM-native verification pipeline.
 """
+
 from .report import verify_agent_output, review_document
 from .extractor import extract_claims
 from .retriever import retrieve_evidence
@@ -13,5 +14,5 @@ __all__ = [
     "extract_claims",
     "retrieve_evidence",
     "verify_claims",
-    "analyze_argument_chain"
+    "analyze_argument_chain",
 ]

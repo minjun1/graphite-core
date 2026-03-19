@@ -1,6 +1,7 @@
 """
 tests/test_graph_store.py — Tests for the core graph store.
 """
+
 import pytest
 from graphite.graph import clamp, generate_quote_hash, GraphStore
 

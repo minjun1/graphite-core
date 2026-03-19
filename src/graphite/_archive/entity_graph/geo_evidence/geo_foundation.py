@@ -4,6 +4,7 @@ graphite/geo_evidence/geo_foundation.py — Provenance for geospatial foundation
 Creates proper Provenance entries when attaching foundation model signals
 (AlphaEarth embeddings, WeatherNext forecasts) to graph nodes.
 """
+
 from ..enums import ConfidenceLevel, SourceType
 from ..schemas import Provenance
 

@@ -13,6 +13,7 @@ Run:
   python examples/flood_replay_demo/run.py                    # basic
   python examples/flood_replay_demo/run.py --alphaearth       # with AlphaEarth enrichment
 """
+
 import argparse
 import os
 import sys
@@ -29,8 +30,9 @@ from extractor import extract_from_documents
 def parse_args():
     parser = argparse.ArgumentParser(description="Hurricane Harvey flood replay demo")
     parser.add_argument(
-        "--alphaearth", action="store_true",
-        help="Enrich graph nodes with AlphaEarth satellite embeddings (64-dim)"
+        "--alphaearth",
+        action="store_true",
+        help="Enrich graph nodes with AlphaEarth satellite embeddings (64-dim)",
     )
     return parser.parse_args()
 
@@ -95,7 +97,7 @@ def main():
         intensity=0.90,
         observed_at="2017-08-25T22:00:00Z",
         evidence="Category 4 hurricane made landfall near Rockport, TX. "
-                 "Port of Houston closed Aug 25-31. Houston Ship Channel shut for 6 days.",
+        "Port of Houston closed Aug 25-31. Houston Ship Channel shut for 6 days.",
         source_type=SourceType.WEATHER_FORECAST,
     )
 
@@ -128,8 +130,10 @@ def main():
     if args.alphaearth and blast:
         try:
             from graphite.features.embedding_similarity import (
-                compute_similarity_scores, adjust_blast_radius,
+                compute_similarity_scores,
+                adjust_blast_radius,
             )
+
             sim_scores = compute_similarity_scores(G, harvey.target_nodes)
             blast_adjusted = adjust_blast_radius(blast, sim_scores, weight=0.3)
             has_similarity = True
@@ -146,10 +150,10 @@ def main():
     elif args.alphaearth:
         header += " (AlphaEarth-enriched)"
 
-    print(f"\n{'='*78}")
+    print(f"\n{'=' * 78}")
     print(f"  🌊 {header}")
     print(f"  Shock source: Port of Houston (closed Aug 25-31)")
-    print(f"{'='*78}")
+    print(f"{'=' * 78}")
 
     display_blast = blast_adjusted if has_similarity else blast
 
@@ -157,8 +161,12 @@ def main():
         print("  ⚠  No downstream impact detected — check graph connectivity")
     elif has_similarity:
         # Show enriched table with similarity delta
-        print(f"  {'TIER':>8s} | {'ADJ':>6s} | {'BASE':>6s} | {'SIM':>5s} | {'Δ':>6s} | ENTITY")
-        print(f"  {'-'*8} | {'-'*6} | {'-'*6} | {'-'*5} | {'-'*6} | {'-'*30}")
+        print(
+            f"  {'TIER':>8s} | {'ADJ':>6s} | {'BASE':>6s} | {'SIM':>5s} | {'Δ':>6s} | ENTITY"
+        )
+        print(
+            f"  {'-' * 8} | {'-' * 6} | {'-' * 6} | {'-' * 5} | {'-' * 6} | {'-' * 30}"
+        )
         for item in display_blast:
             tier = item["exposure_tier"]
             adj = item["total_exposure"]
@@ -167,7 +175,9 @@ def main():
             delta = item.get("similarity_delta", 0.0)
             entity = item["entity"]
             delta_str = f"+{delta:.1%}" if delta >= 0 else f"{delta:.1%}"
-            print(f"  {tier:>8s} | {adj:5.1%} | {base:5.1%} | {sim:5.2f} | {delta_str:>6s} | {entity}")
+            print(
+                f"  {tier:>8s} | {adj:5.1%} | {base:5.1%} | {sim:5.2f} | {delta_str:>6s} | {entity}"
+            )
     else:
         for item in display_blast:
             tier = item["exposure_tier"]
@@ -183,10 +193,12 @@ def main():
 
             print(f"  {tier:>8s} | {score:6.1%} | {entity}{evidence_hint}")
 
-    print(f"{'='*78}\n")
+    print(f"{'=' * 78}\n")
 
     if has_similarity:
-        print("  📐 SIM = cosine similarity to shock source (AlphaEarth 64-dim embedding)")
+        print(
+            "  📐 SIM = cosine similarity to shock source (AlphaEarth 64-dim embedding)"
+        )
         print("  📐 ADJ = 70% propagation + 30% similarity-weighted exposure\n")
 
     # ── Save results for regression testing ──
@@ -203,10 +215,15 @@ def main():
                 "entity": item["entity"],
                 "exposure_tier": item["exposure_tier"],
                 "total_exposure": round(item["total_exposure"], 6),
-                **({"base_exposure": round(item["base_exposure"], 6),
-                    "embedding_similarity": item["embedding_similarity"],
-                    "similarity_delta": item["similarity_delta"]}
-                   if has_similarity and "base_exposure" in item else {}),
+                **(
+                    {
+                        "base_exposure": round(item["base_exposure"], 6),
+                        "embedding_similarity": item["embedding_similarity"],
+                        "similarity_delta": item["similarity_delta"],
+                    }
+                    if has_similarity and "base_exposure" in item
+                    else {}
+                ),
             }
             for item in display_blast
         ],
@@ -224,4 +241,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

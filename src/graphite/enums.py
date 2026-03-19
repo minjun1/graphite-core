@@ -4,11 +4,13 @@ graphite/enums.py — Canonical enums for the Graphite engine.
 These prevent string drift across domains. Domains can extend EdgeType
 via string values, but must register them in DomainSpec.allowed_edge_types.
 """
+
 from enum import Enum
 
 
 class SourceType(str, Enum):
     """How a document was obtained."""
+
     SEC_10K = "SEC_10K"
     SEC_20F = "SEC_20F"
     USGS_MCS = "USGS_MCS"
@@ -24,6 +26,7 @@ class SourceType(str, Enum):
 
 class EdgeType(str, Enum):
     """Core relationship types. Domains register additional types in DomainSpec."""
+
     PRODUCES = "PRODUCES"
     REFINED_BY = "REFINED_BY"
     SUPPLIES_TO = "SUPPLIES_TO"
@@ -38,6 +41,7 @@ class EdgeType(str, Enum):
 
 class NodeType(str, Enum):
     """Node classification. Used in NodeRef for type safety."""
+
     COMPANY = "COMPANY"
     COUNTRY = "COUNTRY"
     MINERAL = "MINERAL"
@@ -50,13 +54,15 @@ class NodeType(str, Enum):
 
 class AssertionMode(str, Enum):
     """How an edge was determined — critical for trust."""
-    EXTRACTED = "EXTRACTED"     # Directly from document text
-    INFERRED = "INFERRED"      # Derived from another entity's filing
-    SEEDED = "SEEDED"          # Hardcoded baseline data
+
+    EXTRACTED = "EXTRACTED"  # Directly from document text
+    INFERRED = "INFERRED"  # Derived from another entity's filing
+    SEEDED = "SEEDED"  # Hardcoded baseline data
 
 
 class ConfidenceLevel(str, Enum):
     """Edge confidence."""
+
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
@@ -64,7 +70,8 @@ class ConfidenceLevel(str, Enum):
 
 class EvidenceType(str, Enum):
     """What kind of evidence backs this edge."""
-    TEXT_QUOTE = "TEXT_QUOTE"   # Verbatim prose from document
+
+    TEXT_QUOTE = "TEXT_QUOTE"  # Verbatim prose from document
     TABLE_CELL = "TABLE_CELL"  # Value from a table/chart
-    DERIVED = "DERIVED"        # Computed from multiple sources
-    MANUAL = "MANUAL"          # Hand-entered by researcher
+    DERIVED = "DERIVED"  # Computed from multiple sources
+    MANUAL = "MANUAL"  # Hand-entered by researcher

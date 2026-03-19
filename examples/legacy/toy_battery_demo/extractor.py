@@ -4,11 +4,17 @@ Toy extractor — deterministic keyword/regex extraction.
 No LLM! This is purely regex-based to demonstrate Graphite's
 pipeline structure without any external dependencies.
 """
+
 import os
 import re
 from graphite import (
-    ExtractedEdge, NodeRef, Provenance,
-    SourceType, EdgeType, ConfidenceLevel, AssertionMode,
+    ExtractedEdge,
+    NodeRef,
+    Provenance,
+    SourceType,
+    EdgeType,
+    ConfidenceLevel,
+    AssertionMode,
 )
 
 
@@ -39,18 +45,32 @@ SUPPLIES_TO_PATTERN = re.compile(
 
 # ── Country ISO mapping ──
 COUNTRY_ISO = {
-    "democratic republic of the congo": "CD", "drc": "CD", "congo": "CD",
-    "australia": "AU", "philippines": "PH", "indonesia": "ID",
-    "china": "CN", "chile": "CL", "finland": "FI", "belgium": "BE",
+    "democratic republic of the congo": "CD",
+    "drc": "CD",
+    "congo": "CD",
+    "australia": "AU",
+    "philippines": "PH",
+    "indonesia": "ID",
+    "china": "CN",
+    "chile": "CL",
+    "finland": "FI",
+    "belgium": "BE",
 }
 
 # ── Company ticker mapping ──
 COMPANY_TICKER = {
-    "catl": "CATL", "tesla": "TSLA", "glencore": "GLEN",
-    "albemarle": "ALB", "albemarle corporation": "ALB",
-    "sqm": "SQM", "bmw": "BMW", "volkswagen": "VOW",
-    "lg energy solution": "LGES", "lg energy": "LGES",
-    "bhp": "BHP", "contemporary amperex": "CATL",
+    "catl": "CATL",
+    "tesla": "TSLA",
+    "glencore": "GLEN",
+    "albemarle": "ALB",
+    "albemarle corporation": "ALB",
+    "sqm": "SQM",
+    "bmw": "BMW",
+    "volkswagen": "VOW",
+    "lg energy solution": "LGES",
+    "lg energy": "LGES",
+    "bhp": "BHP",
+    "contemporary amperex": "CATL",
 }
 
 
@@ -66,7 +86,7 @@ def _normalize_entity(name: str):
         if company_name in clean:
             return NodeRef.company(ticker, label=name.strip()), False
     # Unknown entity → treat as company
-    short = re.sub(r'\s+', '_', name.strip().upper()[:20])
+    short = re.sub(r"\s+", "_", name.strip().upper()[:20])
     return NodeRef.company(short, label=name.strip()), False
 
 
@@ -90,19 +110,23 @@ def extract_from_document(filepath: str) -> list[ExtractedEdge]:
         if "lithium" in filepath.lower():
             mineral = "LITHIUM"
 
-        edges.append(ExtractedEdge(
-            from_node=entity_ref,
-            to_node=NodeRef.mineral(mineral),
-            edge_type=EdgeType.PRODUCES,
-            assertion_mode=AssertionMode.EXTRACTED,
-            attributes={"production_pct": float(pct_str), "bucket_weight": 0.7},
-            provenance=[Provenance(
-                source_id=filename,
-                source_type=SourceType.PDF,
-                evidence_quote=m.group(0).strip()[:280],
-                confidence=ConfidenceLevel.HIGH,
-            )],
-        ))
+        edges.append(
+            ExtractedEdge(
+                from_node=entity_ref,
+                to_node=NodeRef.mineral(mineral),
+                edge_type=EdgeType.PRODUCES,
+                assertion_mode=AssertionMode.EXTRACTED,
+                attributes={"production_pct": float(pct_str), "bucket_weight": 0.7},
+                provenance=[
+                    Provenance(
+                        source_id=filename,
+                        source_type=SourceType.PDF,
+                        evidence_quote=m.group(0).strip()[:280],
+                        confidence=ConfidenceLevel.HIGH,
+                    )
+                ],
+            )
+        )
 
     # 2. SUPPLIES_TO: Company → Company supply relationships
     for m in SUPPLIES_TO_PATTERN.finditer(text):
@@ -112,19 +136,23 @@ def extract_from_document(filepath: str) -> list[ExtractedEdge]:
         if supplier.node_id == buyer.node_id:
             continue
 
-        edges.append(ExtractedEdge(
-            from_node=supplier,
-            to_node=buyer,
-            edge_type=EdgeType.SUPPLIES_TO,
-            assertion_mode=AssertionMode.EXTRACTED,
-            attributes={"bucket_weight": 0.5},
-            provenance=[Provenance(
-                source_id=filename,
-                source_type=SourceType.PDF,
-                evidence_quote=m.group(0).strip()[:280],
-                confidence=ConfidenceLevel.MEDIUM,
-            )],
-        ))
+        edges.append(
+            ExtractedEdge(
+                from_node=supplier,
+                to_node=buyer,
+                edge_type=EdgeType.SUPPLIES_TO,
+                assertion_mode=AssertionMode.EXTRACTED,
+                attributes={"bucket_weight": 0.5},
+                provenance=[
+                    Provenance(
+                        source_id=filename,
+                        source_type=SourceType.PDF,
+                        evidence_quote=m.group(0).strip()[:280],
+                        confidence=ConfidenceLevel.MEDIUM,
+                    )
+                ],
+            )
+        )
 
     # 3. Sourcing patterns: X sources Y from Z
     for m in SUPPLIES_PATTERN.finditer(text):
@@ -134,19 +162,23 @@ def extract_from_document(filepath: str) -> list[ExtractedEdge]:
         if supplier.node_id == buyer.node_id:
             continue
 
-        edges.append(ExtractedEdge(
-            from_node=supplier,
-            to_node=buyer,
-            edge_type=EdgeType.SUPPLIES_TO,
-            assertion_mode=AssertionMode.EXTRACTED,
-            attributes={"bucket_weight": 0.5},
-            provenance=[Provenance(
-                source_id=filename,
-                source_type=SourceType.PDF,
-                evidence_quote=m.group(0).strip()[:280],
-                confidence=ConfidenceLevel.MEDIUM,
-            )],
-        ))
+        edges.append(
+            ExtractedEdge(
+                from_node=supplier,
+                to_node=buyer,
+                edge_type=EdgeType.SUPPLIES_TO,
+                assertion_mode=AssertionMode.EXTRACTED,
+                attributes={"bucket_weight": 0.5},
+                provenance=[
+                    Provenance(
+                        source_id=filename,
+                        source_type=SourceType.PDF,
+                        evidence_quote=m.group(0).strip()[:280],
+                        confidence=ConfidenceLevel.MEDIUM,
+                    )
+                ],
+            )
+        )
 
     return edges
 

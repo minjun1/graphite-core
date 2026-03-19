@@ -5,6 +5,7 @@ The extractor calls build_context(doc, strategy="...") to get
 a keyword-scored, trimmed context string. New domains register
 their own strategies.
 """
+
 import hashlib
 import re
 from typing import Callable, Dict, List, Optional, Tuple
@@ -43,7 +44,9 @@ def build_context(doc, strategy: str = "default", **kwargs) -> str:
     """
     fn = _strategies.get(strategy)
     if fn is None:
-        raise ValueError(f"Unknown context strategy: '{strategy}'. Registered: {list(_strategies.keys())}")
+        raise ValueError(
+            f"Unknown context strategy: '{strategy}'. Registered: {list(_strategies.keys())}"
+        )
     return fn(doc.paragraphs, **kwargs)
 
 
@@ -51,22 +54,27 @@ def build_context(doc, strategy: str = "default", **kwargs) -> str:
 # Utility Functions
 # ═══════════════════════════════════════
 
+
 def sha1_hex(s: str) -> str:
     return hashlib.sha1(s.encode()).hexdigest()
+
 
 def sha256_hex(s: str) -> str:
     return hashlib.sha256(s.encode()).hexdigest()
 
+
 def normalize_text(text: str) -> str:
-    text = re.sub(r'\n{3,}', '\n\n', text)
-    text = re.sub(r' {2,}', ' ', text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r" {2,}", " ", text)
     return text.strip()
+
 
 def clip_quote(s: str, max_chars: int = 280) -> str:
     s = s.strip()
     if len(s) <= max_chars:
         return s
     return s[:max_chars] + "…"
+
 
 def split_into_paragraphs(
     text: str,
@@ -83,9 +91,11 @@ def split_into_paragraphs(
                 break
     return paras
 
+
 def score_paragraph(paragraph: str, keywords: List[str]) -> int:
     lower = paragraph.lower()
     return sum(1 for kw in keywords if kw.lower() in lower)
+
 
 def find_best_paragraph_for_quote(
     paragraphs: List[str],
@@ -125,6 +135,7 @@ def find_best_paragraph_for_quote(
 # ═══════════════════════════════════════
 # Built-in Strategies
 # ═══════════════════════════════════════
+
 
 def _build_from_keywords(
     paragraphs: List[str],
@@ -180,10 +191,20 @@ def _build_from_keywords(
 # ── Default strategy ──
 
 _DEFAULT_KEYWORDS = [
-    "supplier", "customer", "supply chain", "supply agreement",
-    "raw material", "sole source", "single source", "dependent",
-    "procurement", "distributor", "contract manufacturer",
-    "critical mineral", "supply risk", "concentration risk",
+    "supplier",
+    "customer",
+    "supply chain",
+    "supply agreement",
+    "raw material",
+    "sole source",
+    "single source",
+    "dependent",
+    "procurement",
+    "distributor",
+    "contract manufacturer",
+    "critical mineral",
+    "supply risk",
+    "concentration risk",
 ]
 
 
@@ -197,13 +218,37 @@ register_strategy("default", _default_strategy)
 # ── USGS country/mineral strategy ──
 
 _USGS_KEYWORDS = [
-    "production", "producer", "mine", "mining", "refinery", "refining",
-    "reserves", "resources", "export", "import", "trade",
-    "metric ton", "tonnes", "percent", "world",
-    "china", "congo", "australia", "chile", "indonesia", "brazil",
-    "critical mineral", "strategic", "national defense",
-    "supply", "demand", "consumption", "substitution",
-    "stockpile", "recycling", "price",
+    "production",
+    "producer",
+    "mine",
+    "mining",
+    "refinery",
+    "refining",
+    "reserves",
+    "resources",
+    "export",
+    "import",
+    "trade",
+    "metric ton",
+    "tonnes",
+    "percent",
+    "world",
+    "china",
+    "congo",
+    "australia",
+    "chile",
+    "indonesia",
+    "brazil",
+    "critical mineral",
+    "strategic",
+    "national defense",
+    "supply",
+    "demand",
+    "consumption",
+    "substitution",
+    "stockpile",
+    "recycling",
+    "price",
 ]
 
 
@@ -211,7 +256,8 @@ def _usgs_strategy(paragraphs: List[str], **kwargs) -> str:
     extra_kw = kwargs.pop("extra_keywords", [])
     keywords = _USGS_KEYWORDS + extra_kw
     return _build_from_keywords(
-        paragraphs, keywords,
+        paragraphs,
+        keywords,
         max_chars=kwargs.get("max_chars", 120_000),
         window=kwargs.get("window", 3),
     )
@@ -223,17 +269,52 @@ register_strategy("usgs_country_mineral", _usgs_strategy)
 # ── SEC minerals strategy ──
 
 _SEC_MINERALS_KEYWORDS = [
-    "cobalt", "lithium", "nickel", "graphite", "rare earth",
-    "copper", "manganese", "gallium", "germanium", "silicon",
-    "tungsten", "titanium", "vanadium", "platinum", "tin",
-    "zinc", "tantalum", "niobium", "chromium", "molybdenum",
-    "antimony", "magnesium", "beryllium",
-    "supplier", "supply chain", "raw material", "procurement",
-    "sole source", "single source", "concentration risk",
-    "mine", "mining", "refinery", "smelter", "processing",
-    "battery", "cathode", "anode", "electrolyte", "cell",
-    "conflict mineral", "responsible sourcing", "DRC",
-    "export control", "trade restriction", "geopolitical",
+    "cobalt",
+    "lithium",
+    "nickel",
+    "graphite",
+    "rare earth",
+    "copper",
+    "manganese",
+    "gallium",
+    "germanium",
+    "silicon",
+    "tungsten",
+    "titanium",
+    "vanadium",
+    "platinum",
+    "tin",
+    "zinc",
+    "tantalum",
+    "niobium",
+    "chromium",
+    "molybdenum",
+    "antimony",
+    "magnesium",
+    "beryllium",
+    "supplier",
+    "supply chain",
+    "raw material",
+    "procurement",
+    "sole source",
+    "single source",
+    "concentration risk",
+    "mine",
+    "mining",
+    "refinery",
+    "smelter",
+    "processing",
+    "battery",
+    "cathode",
+    "anode",
+    "electrolyte",
+    "cell",
+    "conflict mineral",
+    "responsible sourcing",
+    "DRC",
+    "export control",
+    "trade restriction",
+    "geopolitical",
 ]
 
 
@@ -241,7 +322,8 @@ def _sec_minerals_strategy(paragraphs: List[str], **kwargs) -> str:
     extra_kw = kwargs.pop("extra_keywords", [])
     keywords = _SEC_MINERALS_KEYWORDS + extra_kw
     return _build_from_keywords(
-        paragraphs, keywords,
+        paragraphs,
+        keywords,
         max_chars=kwargs.get("max_chars", 120_000),
     )
 
@@ -252,12 +334,25 @@ register_strategy("sec_minerals", _sec_minerals_strategy)
 # ── SEC generic strategy ──
 
 _SEC_GENERIC_KEYWORDS = [
-    "supplier", "customer", "revenue", "supply chain",
-    "supply agreement", "purchase commitment", "long-term agreement",
-    "sole source", "single source", "concentration risk",
-    "largest customer", "major customer", "significant customer",
-    "contract manufacturer", "distributor", "reseller",
-    "outsource", "subcontract", "third party",
+    "supplier",
+    "customer",
+    "revenue",
+    "supply chain",
+    "supply agreement",
+    "purchase commitment",
+    "long-term agreement",
+    "sole source",
+    "single source",
+    "concentration risk",
+    "largest customer",
+    "major customer",
+    "significant customer",
+    "contract manufacturer",
+    "distributor",
+    "reseller",
+    "outsource",
+    "subcontract",
+    "third party",
 ]
 
 

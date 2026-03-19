@@ -13,6 +13,7 @@ Key semantics:
       * Same source_id, different quote → append
       * Different source_id → always append
 """
+
 import json
 import sqlite3
 from typing import List, Optional, Set, Tuple
@@ -38,7 +39,7 @@ class ClaimStore:
             cursor = conn.cursor()
 
             # Main claims table
-            cursor.execute('''
+            cursor.execute("""
             CREATE TABLE IF NOT EXISTS claims (
                 claim_id TEXT PRIMARY KEY,
                 claim_text TEXT,
@@ -52,11 +53,15 @@ class ClaimStore:
                 confidence_score REAL,
                 full_json TEXT
             )
-            ''')
+            """)
 
             # Index for fast querying
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_claims_predicate ON claims(predicate)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_claims_as_of_date ON claims(as_of_date)')
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_claims_predicate ON claims(predicate)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_claims_as_of_date ON claims(as_of_date)"
+            )
 
             conn.commit()
 
@@ -79,9 +84,7 @@ class ClaimStore:
           - Same source_id, different quote → append
           - Different source_id → always append
         """
-        seen: Set[Tuple[str, str]] = {
-            ClaimStore._evidence_key(ev) for ev in existing
-        }
+        seen: Set[Tuple[str, str]] = {ClaimStore._evidence_key(ev) for ev in existing}
         merged = list(existing)
         for ev in incoming:
             key = ClaimStore._evidence_key(ev)
@@ -104,10 +107,12 @@ class ClaimStore:
         if existing is not None:
             # Merge evidence from the new claim into the existing one
             existing.supporting_evidence = self._merge_evidence(
-                existing.supporting_evidence, claim.supporting_evidence,
+                existing.supporting_evidence,
+                claim.supporting_evidence,
             )
             existing.weakening_evidence = self._merge_evidence(
-                existing.weakening_evidence, claim.weakening_evidence,
+                existing.weakening_evidence,
+                claim.weakening_evidence,
             )
             # Update mutable fields from the newer claim
             existing.claim_text = claim.claim_text or existing.claim_text
@@ -145,7 +150,8 @@ class ClaimStore:
             score = claim.confidence.score if claim.confidence else 0.0
             full_json = claim.model_dump_json()
 
-            cursor.execute('''
+            cursor.execute(
+                """
             INSERT INTO claims (
                 claim_id, claim_text, claim_type, granularity,
                 subject_entities, predicate, object_entities,
@@ -157,19 +163,21 @@ class ClaimStore:
                 computed_status=excluded.computed_status,
                 confidence_score=excluded.confidence_score,
                 full_json=excluded.full_json
-            ''', (
-                claim.claim_id,
-                claim.claim_text,
-                claim.claim_type.value,
-                claim.granularity.value,
-                subjects_str,
-                claim.predicate,
-                objects_str,
-                claim.as_of_date,
-                claim.computed_status.value,
-                score,
-                full_json
-            ))
+            """,
+                (
+                    claim.claim_id,
+                    claim.claim_text,
+                    claim.claim_type.value,
+                    claim.granularity.value,
+                    subjects_str,
+                    claim.predicate,
+                    objects_str,
+                    claim.as_of_date,
+                    claim.computed_status.value,
+                    score,
+                    full_json,
+                ),
+            )
 
             conn.commit()
 
@@ -182,36 +190,40 @@ class ClaimStore:
         """Retrieve a claim by its exact ID."""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT full_json FROM claims WHERE claim_id = ?', (claim_id,))
+            cursor.execute(
+                "SELECT full_json FROM claims WHERE claim_id = ?", (claim_id,)
+            )
             row = cursor.fetchone()
 
             if row:
                 return Claim.model_validate_json(row[0])
             return None
 
-    def search_claims(self,
-                      subject_contains: Optional[str] = None,
-                      object_contains: Optional[str] = None,
-                      predicate: Optional[str] = None,
-                      as_of_date: Optional[str] = None) -> List[Claim]:
+    def search_claims(
+        self,
+        subject_contains: Optional[str] = None,
+        object_contains: Optional[str] = None,
+        predicate: Optional[str] = None,
+        as_of_date: Optional[str] = None,
+    ) -> List[Claim]:
         """Search claims by components."""
-        query = 'SELECT full_json FROM claims WHERE 1=1'
+        query = "SELECT full_json FROM claims WHERE 1=1"
         params = []
 
         if subject_contains:
-            query += ' AND subject_entities LIKE ?'
-            params.append(f'%{subject_contains}%')
+            query += " AND subject_entities LIKE ?"
+            params.append(f"%{subject_contains}%")
 
         if object_contains:
-            query += ' AND object_entities LIKE ?'
-            params.append(f'%{object_contains}%')
+            query += " AND object_entities LIKE ?"
+            params.append(f"%{object_contains}%")
 
         if predicate:
-            query += ' AND predicate = ?'
+            query += " AND predicate = ?"
             params.append(predicate)
 
         if as_of_date:
-            query += ' AND as_of_date = ?'
+            query += " AND as_of_date = ?"
             params.append(as_of_date)
 
         with sqlite3.connect(self.db_path) as conn:
@@ -301,8 +313,7 @@ class ClaimStore:
 
             # Must share at least one entity
             c_entities = set(
-                e.upper().strip()
-                for e in c.subject_entities + c.object_entities
+                e.upper().strip() for e in c.subject_entities + c.object_entities
             )
             if claim_entities & c_entities:
                 conflicts.append(c)

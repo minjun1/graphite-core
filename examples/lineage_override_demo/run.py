@@ -12,6 +12,7 @@ Run: python examples/lineage_override_demo/run.py
 
 No LLM. No API keys. Fully local.
 """
+
 import os
 import sys
 import tempfile
@@ -46,38 +47,49 @@ def main():
         claim_type=ClaimType.RISK_ASSERTION,
         origin=ClaimOrigin.AGENT,
         generator_id="research-agent-v2",
-        supporting_evidence=[Provenance(
-            source_id="agent-memo-001",
-            source_type=SourceType.WEB,
-            evidence_quote="TSMC CoWoS capacity is constrained, therefore Nvidia revenue drops 50%.",
-            confidence=ConfidenceLevel.MEDIUM,
-        )],
-        weakening_evidence=[Provenance(
-            source_id="nvda-10k-2024",
-            source_type=SourceType.SEC_10K,
-            evidence_quote="We have secured advance capacity and expect revenue to grow sequentially.",
-            confidence=ConfidenceLevel.HIGH,
-        )],
+        supporting_evidence=[
+            Provenance(
+                source_id="agent-memo-001",
+                source_type=SourceType.WEB,
+                evidence_quote="TSMC CoWoS capacity is constrained, therefore Nvidia revenue drops 50%.",
+                confidence=ConfidenceLevel.MEDIUM,
+            )
+        ],
+        weakening_evidence=[
+            Provenance(
+                source_id="nvda-10k-2024",
+                source_type=SourceType.SEC_10K,
+                evidence_quote="We have secured advance capacity and expect revenue to grow sequentially.",
+                confidence=ConfidenceLevel.HIGH,
+            )
+        ],
     )
 
     # Score and compute machine verdict
-    claim.confidence = ConfidenceResult.from_score(0.35, factors=[
-        ConfidenceFactor(
-            name="source_count", raw_value="1 supporting, 1 weakening",
-            contribution=-0.1, direction="NEGATIVE",
-            explanation="Conflicting evidence from higher-quality source",
-        ),
-        ConfidenceFactor(
-            name="source_diversity", raw_value="agent memo vs SEC filing",
-            contribution=-0.15, direction="NEGATIVE",
-            explanation="SEC filing contradicts agent-generated claim",
-        ),
-    ])
+    claim.confidence = ConfidenceResult.from_score(
+        0.35,
+        factors=[
+            ConfidenceFactor(
+                name="source_count",
+                raw_value="1 supporting, 1 weakening",
+                contribution=-0.1,
+                direction="NEGATIVE",
+                explanation="Conflicting evidence from higher-quality source",
+            ),
+            ConfidenceFactor(
+                name="source_diversity",
+                raw_value="agent memo vs SEC filing",
+                contribution=-0.15,
+                direction="NEGATIVE",
+                explanation="SEC filing contradicts agent-generated claim",
+            ),
+        ],
+    )
     claim.compute_status()
     store.save_claim(claim)
 
     saved = store.get_claim(claim.claim_id)
-    print(f"   Claim: \"{saved.claim_text}\"")
+    print(f'   Claim: "{saved.claim_text}"')
     print(f"   Machine verdict: {saved.computed_status.value}")
     print(f"   Confidence: {saved.confidence.score} ({saved.confidence.level.value})")
     print(f"   Review state: {saved.review_state.value}")
@@ -97,7 +109,7 @@ def main():
     saved = store.get_claim(claim.claim_id)
     print(f"   Computed (machine): {saved.computed_status.value}")
     print(f"   Final (after override): {saved.final_status.value}")
-    print(f"   Override reason: \"{saved.override_reason}\"")
+    print(f'   Override reason: "{saved.override_reason}"')
     print(f"   Reviewed by: {saved.reviewed_by}")
     print(f"   Review state: {saved.review_state.value}")
     print()
@@ -113,12 +125,14 @@ def main():
         claim_text="Nvidia's revenue will drop by 50% next quarter due to CoWoS constraints.",
         claim_type=ClaimType.RISK_ASSERTION,
         origin=ClaimOrigin.AGENT,
-        weakening_evidence=[Provenance(
-            source_id="nvda-earnings-q4-2024",
-            source_type=SourceType.WEB,
-            evidence_quote="Revenue grew 22% sequentially to $22.1B, exceeding guidance. CoWoS capacity expanded.",
-            confidence=ConfidenceLevel.HIGH,
-        )],
+        weakening_evidence=[
+            Provenance(
+                source_id="nvda-earnings-q4-2024",
+                source_type=SourceType.WEB,
+                evidence_quote="Revenue grew 22% sequentially to $22.1B, exceeding guidance. CoWoS capacity expanded.",
+                confidence=ConfidenceLevel.HIGH,
+            )
+        ],
     )
     store.save_claim(updated_claim)
 
@@ -126,10 +140,12 @@ def main():
     print(f"   Supporting evidence: {len(saved.supporting_evidence)}")
     print(f"   Weakening evidence: {len(saved.weakening_evidence)} ← accumulated!")
     for i, ev in enumerate(saved.weakening_evidence):
-        print(f"     [{i+1}] {ev.source_id}: \"{ev.evidence_quote[:70]}...\"")
+        print(f'     [{i + 1}] {ev.source_id}: "{ev.evidence_quote[:70]}..."')
     print()
-    print(f"   Final status still: {saved.final_status.value} (analyst override preserved)")
-    print(f"   Override reason still: \"{saved.override_reason}\"")
+    print(
+        f"   Final status still: {saved.final_status.value} (analyst override preserved)"
+    )
+    print(f'   Override reason still: "{saved.override_reason}"')
     print()
 
     # ── Step 4: Query full lineage ──
@@ -142,13 +158,19 @@ def main():
     print(f"   Evidence trail:")
     print(f"     Supporting: {len(saved.supporting_evidence)} source(s)")
     for ev in saved.supporting_evidence:
-        print(f"       └── {ev.source_id} ({ev.source_type.value}, confidence: {ev.confidence.value})")
+        print(
+            f"       └── {ev.source_id} ({ev.source_type.value}, confidence: {ev.confidence.value})"
+        )
     print(f"     Weakening: {len(saved.weakening_evidence)} source(s)")
     for ev in saved.weakening_evidence:
-        print(f"       └── {ev.source_id} ({ev.source_type.value}, confidence: {ev.confidence.value})")
+        print(
+            f"       └── {ev.source_id} ({ev.source_type.value}, confidence: {ev.confidence.value})"
+        )
     print(f"   Machine verdict: {saved.computed_status.value}")
-    print(f"   Analyst override: {saved.final_status.value} (by {saved.reviewed_by} at {saved.reviewed_at})")
-    print(f"   Override reason: \"{saved.override_reason}\"")
+    print(
+        f"   Analyst override: {saved.final_status.value} (by {saved.reviewed_by} at {saved.reviewed_at})"
+    )
+    print(f'   Override reason: "{saved.override_reason}"')
     print()
 
     # ── Step 5: Demonstrate analyst override survives recompute ──

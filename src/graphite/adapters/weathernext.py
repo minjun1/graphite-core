@@ -12,6 +12,7 @@ WeatherNext 2:
   - Access: EE/BigQuery (requires data request form)
   - Note: Experimental dataset, not validated for real-world use
 """
+
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
