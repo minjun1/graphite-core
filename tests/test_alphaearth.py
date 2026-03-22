@@ -1,7 +1,8 @@
 """tests/test_alphaearth.py — Unit tests for graphite.adapters.alphaearth."""
 
 import pytest
-import numpy as np
+
+np = pytest.importorskip("numpy")
 from graphite.adapters.alphaearth import AlphaEarthAdapter, EMBEDDING_DIM
 
 
