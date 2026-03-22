@@ -82,3 +82,23 @@ class TestExtractClaimsConvenience:
 
         result = extract_claims("doc text", api_key="test-key")
         assert len(result) == 1
+
+
+class TestExtractorMalformedJSON:
+    @patch("openai.OpenAI")
+    def test_malformed_json_raises_value_error(self, MockOpenAI):
+        """Malformed LLM response raises ValueError, not JSONDecodeError."""
+        mock_client = MagicMock()
+        MockOpenAI.return_value = mock_client
+
+        mock_message = MagicMock()
+        mock_message.content = "not valid json {{"
+        mock_choice = MagicMock()
+        mock_choice.message = mock_message
+        mock_response = MagicMock()
+        mock_response.choices = [mock_choice]
+        mock_client.chat.completions.create.return_value = mock_response
+
+        extractor = ClaimExtractor(api_key="test-key")
+        with pytest.raises(ValueError, match="LLM returned invalid JSON"):
+            extractor.extract_claims("some document")

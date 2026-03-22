@@ -37,7 +37,13 @@ class ClaimExtractor:
             response_format={"type": "json_object"},
         )
 
-        raw_claims = json.loads(response.choices[0].message.content).get("claims", [])
+        try:
+            raw_claims = json.loads(response.choices[0].message.content).get("claims", [])
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"LLM returned invalid JSON: {e}. "
+                f"Raw response: {response.choices[0].message.content[:200]}"
+            ) from e
 
         parsed_claims = []
         for c in raw_claims:

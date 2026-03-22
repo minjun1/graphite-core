@@ -61,7 +61,13 @@ class ClaimVerifier:
                 response_format={"type": "json_object"},
             )
 
-            res = json.loads(response.choices[0].message.content)
+            try:
+                res = json.loads(response.choices[0].message.content)
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    f"LLM returned invalid JSON: {e}. "
+                    f"Raw response: {response.choices[0].message.content[:200]}"
+                ) from e
 
             # Extract evidence IDs based on returned indices
             supp_ids = [

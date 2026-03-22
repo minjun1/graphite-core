@@ -53,7 +53,13 @@ class ArgumentAnalyzer:
             response_format={"type": "json_object"},
         )
 
-        res_data = json.loads(response.choices[0].message.content)
+        try:
+            res_data = json.loads(response.choices[0].message.content)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"LLM returned invalid JSON: {e}. "
+                f"Raw response: {response.choices[0].message.content[:200]}"
+            ) from e
         results = []
 
         for item in res_data.get("argument_verdicts", []):
