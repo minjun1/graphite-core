@@ -11,15 +11,27 @@ from graphite.text import (
 
 class TestHashFunctions:
     def test_sha1_deterministic(self):
-        assert sha1_hex("hello") == sha1_hex("hello")
-        assert len(sha1_hex("hello")) == 40
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            h = sha1_hex("hello")
+            assert isinstance(h, str)
+            assert len(h) == 40
+            assert h == sha1_hex("hello")
+
+    def test_sha1_emits_deprecation_warning(self):
+        with pytest.warns(DeprecationWarning, match="sha1_hex is deprecated"):
+            sha1_hex("hello")
 
     def test_sha256_deterministic(self):
         assert sha256_hex("hello") == sha256_hex("hello")
         assert len(sha256_hex("hello")) == 64
 
     def test_sha1_differs_from_sha256(self):
-        assert sha1_hex("hello") != sha256_hex("hello")
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            assert sha1_hex("hello") != sha256_hex("hello")
 
 
 class TestNormalizeText:

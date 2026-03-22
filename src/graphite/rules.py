@@ -7,10 +7,9 @@ No LLM is involved at scoring time.
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RuleResult(BaseModel):
@@ -24,16 +23,15 @@ class RuleResult(BaseModel):
     category: str = ""
 
 
-@dataclass
-class ScoreBreakdown:
+class ScoreBreakdown(BaseModel):
     """Complete scoring output for an edge."""
 
     base_score: float
-    rule_results: List[RuleResult] = field(default_factory=list)
+    rule_results: List[RuleResult] = Field(default_factory=list)
     final_score: float = 0.0
     raw_delta: float = 0.0
     applied_delta: float = 0.0
-    category_summaries: List[Dict] = field(default_factory=list)
+    category_summaries: List[Dict] = Field(default_factory=list)
     confidence: str = ""
     verdict: str = ""
     verdict_reason: str = ""

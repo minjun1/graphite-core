@@ -8,6 +8,7 @@ their own strategies.
 
 import hashlib
 import re
+import warnings
 from typing import Callable, Dict, List, Optional, Tuple
 
 
@@ -57,6 +58,7 @@ def build_context(doc, strategy: str = "default", **kwargs) -> str:
 
 def sha1_hex(s: str) -> str:
     """Deprecated: use sha256_hex instead."""
+    warnings.warn("sha1_hex is deprecated, use sha256_hex instead", DeprecationWarning, stacklevel=2)
     return hashlib.sha1(s.encode()).hexdigest()
 
 
