@@ -27,9 +27,9 @@ class TestRuleResult:
 class TestScoreBreakdown:
     def _make_breakdown(self):
         rules = [
-            RuleResult("R01", "Sole Source", True, 0.15, "yes", "risk"),
-            RuleResult("R02", "Diversified", False, 0.0, "no", "risk"),
-            RuleResult("R03", "Revenue Conc", True, 0.12, "yes", "revenue"),
+            RuleResult(rule_id="R01", rule_name="Sole Source", triggered=True, weight_delta=0.15, explanation="yes", category="risk"),
+            RuleResult(rule_id="R02", rule_name="Diversified", triggered=False, weight_delta=0.0, explanation="no", category="risk"),
+            RuleResult(rule_id="R03", rule_name="Revenue Conc", triggered=True, weight_delta=0.12, explanation="yes", category="revenue"),
         ]
         return ScoreBreakdown(
             base_score=0.5,

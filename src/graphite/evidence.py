@@ -11,6 +11,8 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import TYPE_CHECKING, List, Optional, Literal
 
+from .rules import RuleResult
+
 if TYPE_CHECKING:
     from .claim import Claim, ConfidenceResult
 
@@ -37,23 +39,12 @@ class EvidenceData(BaseModel):
     fiscal_period: str = ""
 
 
-class RuleResultModel(BaseModel):
-    """Single rule evaluation result."""
-
-    rule_id: str
-    rule_name: str
-    triggered: bool
-    weight_delta: float
-    explanation: str
-    category: str = ""
-
-
 class ScoringData(BaseModel):
     """Deterministic scoring breakdown — no LLM involved."""
 
     policy_id: str
     applied_rules: List[str]
-    rule_details: List[RuleResultModel] = []
+    rule_details: List[RuleResult] = []
     calculated_weight: float
     base_score: float = 0.0
     final_score: float = 0.0

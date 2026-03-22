@@ -10,9 +10,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
+from pydantic import BaseModel
 
-@dataclass
-class RuleResult:
+
+class RuleResult(BaseModel):
     """Result from evaluating a single rule against an edge."""
 
     rule_id: str

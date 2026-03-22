@@ -3,9 +3,10 @@
 import pytest
 from graphite.claim import Claim, ConfidenceResult  # noqa: F401 — resolves EvidencePacket forward refs
 from graphite.evidence import (
-    EvidenceData, RuleResultModel, ScoringData,
+    EvidenceData, ScoringData,
     CounterEvidence, EvidencePacket,
 )
+from graphite.rules import RuleResult
 
 EvidencePacket.model_rebuild()
 
@@ -35,9 +36,9 @@ class TestEvidenceData:
         assert ed.section == ""
 
 
-class TestRuleResultModel:
+class TestRuleResult:
     def test_construction(self):
-        rr = RuleResultModel(
+        rr = RuleResult(
             rule_id="R01",
             rule_name="Sole Source",
             triggered=True,
@@ -62,7 +63,7 @@ class TestScoringData:
         assert len(sd.applied_rules) == 2
 
     def test_with_rule_details(self):
-        rr = RuleResultModel(
+        rr = RuleResult(
             rule_id="R01", rule_name="test", triggered=True,
             weight_delta=0.1, explanation="x",
         )
