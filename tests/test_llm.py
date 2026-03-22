@@ -101,6 +101,7 @@ class TestGeminiExtractStructured:
                 schema=SampleSchema, max_retries=3,
             )
             assert result.name == "retry"
+            assert mock_client.models.generate_content.call_count == 2
 
 
 class TestGeminiExtractJson:

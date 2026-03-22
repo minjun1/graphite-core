@@ -125,6 +125,13 @@ class TestBasePipeline:
 
 
 class TestDomainRegistry:
+    @pytest.fixture(autouse=True)
+    def _save_restore_registry(self):
+        saved = dict(_domain_registry)
+        yield
+        _domain_registry.clear()
+        _domain_registry.update(saved)
+
     def test_register_and_get(self):
         spec = DomainSpec(
             name="_test_domain",

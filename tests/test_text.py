@@ -100,6 +100,13 @@ class TestFindBestParagraphForQuote:
 
 
 class TestStrategyRegistry:
+    @pytest.fixture(autouse=True)
+    def _save_restore_strategies(self):
+        saved = dict(_strategies)
+        yield
+        _strategies.clear()
+        _strategies.update(saved)
+
     def test_builtin_strategies_registered(self):
         assert "default" in _strategies
         assert "usgs_country_mineral" in _strategies
