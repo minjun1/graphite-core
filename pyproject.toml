@@ -44,7 +44,6 @@ Issues = "https://github.com/minjun1/graphite-core/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["graphite._archive", "graphite._archive.*"]
 
 [tool.setuptools.package-data]
 graphite = ["py.typed"]
