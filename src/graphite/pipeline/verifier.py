@@ -3,7 +3,6 @@ graphite/pipeline/verifier.py — Claim-level verification using LLMs.
 """
 
 import json
-import os
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 
@@ -15,23 +14,8 @@ class ClaimVerifier:
     """Evaluates claims against retrieved evidence spans."""
 
     def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
-        try:
-            from openai import OpenAI
-
-            self.client = OpenAI(
-                api_key=api_key
-                or os.environ.get("GEMINI_API_KEY")
-                or os.environ.get("OPENAI_API_KEY"),
-                base_url=base_url
-                or os.environ.get(
-                    "OPENAI_BASE_URL",
-                    "https://generativelanguage.googleapis.com/v1beta/openai/",
-                ),
-            )
-        except ImportError:
-            raise ImportError(
-                'Please install the default verifier: pip install "graphite-engine[llm]"'
-            )
+        from graphite.pipeline._client import create_openai_client
+        self.client = create_openai_client(api_key=api_key, base_url=base_url)
 
     def verify_claims(
         self,

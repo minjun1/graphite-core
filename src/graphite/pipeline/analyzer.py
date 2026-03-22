@@ -3,7 +3,6 @@ graphite/pipeline/analyzer.py — Argument-level analysis for detecting logic le
 """
 
 import json
-import os
 from typing import List, Dict, Any, Optional
 
 from graphite.pipeline.verdict import (
@@ -18,23 +17,8 @@ class ArgumentAnalyzer:
     """Analyzes the overall argument chain for unsupported conclusions (CONCLUSION_JUMP)."""
 
     def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
-        try:
-            from openai import OpenAI
-
-            self.client = OpenAI(
-                api_key=api_key
-                or os.environ.get("GEMINI_API_KEY")
-                or os.environ.get("OPENAI_API_KEY"),
-                base_url=base_url
-                or os.environ.get(
-                    "OPENAI_BASE_URL",
-                    "https://generativelanguage.googleapis.com/v1beta/openai/",
-                ),
-            )
-        except ImportError:
-            raise ImportError(
-                'Please install the default analyzer: pip install "graphite-engine[llm]"'
-            )
+        from graphite.pipeline._client import create_openai_client
+        self.client = create_openai_client(api_key=api_key, base_url=base_url)
 
     def analyze_argument_chain(
         self, memo_text: str, verdicts: List[Verdict], model: str = "gemini-2.5-flash"
