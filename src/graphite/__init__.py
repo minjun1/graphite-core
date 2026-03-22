@@ -27,6 +27,12 @@ from .claim import ConfidenceFactor, ConfidenceResult
 from .claim_store import ClaimStore
 from .confidence import ConfidenceScorer
 
+# ── Pipeline verdict types (re-exported for convenience) ──
+from .pipeline.verdict import (
+    VerdictEnum, ArgumentVerdictEnum, VerdictRationale,
+    Verdict, ArgumentVerdict, VerificationReport,
+)
+
 # ── Domain plugin contracts ──
 from .domain import (
     BaseFetcher,

@@ -7,7 +7,8 @@ import os
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 
-from graphite.claim import Claim, Verdict, VerdictEnum, VerdictRationale
+from graphite.claim import Claim
+from graphite.pipeline.verdict import Verdict, VerdictEnum, VerdictRationale
 
 
 class ClaimVerifier:

@@ -5,7 +5,7 @@ graphite/pipeline/report.py — Output reporting and the Hero API `verify_agent_
 import hashlib
 from typing import List, Dict, Any, Optional
 
-from graphite.claim import VerificationReport, VerdictEnum, ArgumentVerdictEnum
+from graphite.pipeline.verdict import VerificationReport, VerdictEnum, ArgumentVerdictEnum
 from graphite.pipeline.extractor import extract_claims
 from graphite.pipeline.retriever import retrieve_evidence
 from graphite.pipeline.verifier import verify_claims

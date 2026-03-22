@@ -6,8 +6,7 @@ import json
 import os
 from typing import List, Dict, Any, Optional
 
-from graphite.claim import (
-    Claim,
+from graphite.pipeline.verdict import (
     Verdict,
     ArgumentVerdict,
     ArgumentVerdictEnum,

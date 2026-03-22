@@ -7,6 +7,14 @@ from .extractor import extract_claims
 from .retriever import retrieve_evidence
 from .verifier import verify_claims
 from .analyzer import analyze_argument_chain
+from .verdict import (
+    VerdictEnum,
+    ArgumentVerdictEnum,
+    VerdictRationale,
+    Verdict,
+    ArgumentVerdict,
+    VerificationReport,
+)
 
 __all__ = [
     "verify_agent_output",
@@ -15,4 +23,10 @@ __all__ = [
     "retrieve_evidence",
     "verify_claims",
     "analyze_argument_chain",
+    "VerdictEnum",
+    "ArgumentVerdictEnum",
+    "VerdictRationale",
+    "Verdict",
+    "ArgumentVerdict",
+    "VerificationReport",
 ]
