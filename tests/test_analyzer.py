@@ -36,10 +36,10 @@ def _mock_analyzer_response(argument_verdicts):
 
 
 class TestArgumentAnalyzer:
-    @patch("openai.OpenAI")
-    def test_grounded_result(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_grounded_result(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_analyzer_response([
             {"text": "The conclusion follows", "verdict": "GROUNDED",
              "rationale_text": "Evidence supports", "contradiction_type": None,
@@ -53,10 +53,10 @@ class TestArgumentAnalyzer:
         assert len(results) == 1
         assert results[0].verdict == ArgumentVerdictEnum.GROUNDED
 
-    @patch("openai.OpenAI")
-    def test_conclusion_jump(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_conclusion_jump(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_analyzer_response([
             {"text": "Unsupported conclusion", "verdict": "CONCLUSION_JUMP",
              "rationale_text": "Leap in logic", "contradiction_type": None,
@@ -69,10 +69,10 @@ class TestArgumentAnalyzer:
         assert results[0].verdict == ArgumentVerdictEnum.CONCLUSION_JUMP
         assert results[0].needs_human_review is True
 
-    @patch("openai.OpenAI")
-    def test_overstated(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_overstated(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_analyzer_response([
             {"text": "Overstated claim", "verdict": "OVERSTATED",
              "rationale_text": "Exaggerated", "contradiction_type": None,
@@ -84,10 +84,10 @@ class TestArgumentAnalyzer:
 
         assert results[0].verdict == ArgumentVerdictEnum.OVERSTATED
 
-    @patch("openai.OpenAI")
-    def test_empty_verdicts(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_empty_verdicts(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_analyzer_response([])
 
         analyzer = ArgumentAnalyzer(api_key="test-key")
@@ -96,10 +96,10 @@ class TestArgumentAnalyzer:
 
 
 class TestAnalyzeConvenience:
-    @patch("openai.OpenAI")
-    def test_convenience_function(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_convenience_function(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_analyzer_response([
             {"text": "ok", "verdict": "GROUNDED", "rationale_text": "fine",
              "contradiction_type": None, "needs_human_review": False},
@@ -110,11 +110,11 @@ class TestAnalyzeConvenience:
 
 
 class TestAnalyzerMalformedJSON:
-    @patch("openai.OpenAI")
-    def test_malformed_json_raises_value_error(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_malformed_json_raises_value_error(self, mock_create):
         """Malformed LLM response raises ValueError, not JSONDecodeError."""
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
 
         mock_message = MagicMock()
         mock_message.content = "not valid json {{"

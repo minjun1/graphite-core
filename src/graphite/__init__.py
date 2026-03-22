@@ -19,13 +19,15 @@ from .enums import (
     EvidenceType, ClaimType, ClaimStatus, ReviewState, ClaimOrigin,
     ClaimGranularity,
 )
-from .evidence import EvidencePacket, EvidenceData
 
 # ── Trust engine primitives ──
 from .claim import Claim
 from .claim import ConfidenceFactor, ConfidenceResult
 from .claim_store import ClaimStore
 from .confidence import ConfidenceScorer
+
+# ── Evidence (must come after Claim and ConfidenceResult for forward references) ──
+from .evidence import EvidencePacket, EvidenceData
 
 # ── Pipeline verdict types (re-exported for convenience) ──
 from .pipeline.verdict import (
@@ -47,3 +49,7 @@ from .domain import register_domain, get_domain, list_domains
 from .rules import BaseRuleEngine, RuleResult, ScoreBreakdown
 
 __version__ = "0.3.2"
+
+# Resolve forward references in EvidencePacket
+# (must be after Claim and ConfidenceResult are imported)
+EvidencePacket.model_rebuild(_types_namespace={"Claim": Claim, "ConfidenceResult": ConfidenceResult})

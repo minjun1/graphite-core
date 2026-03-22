@@ -43,10 +43,10 @@ def _mock_verifier_response(verdict="SUPPORTED", rationale="Evidence supports"):
 
 
 class TestClaimVerifier:
-    @patch("openai.OpenAI")
-    def test_supported_verdict(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_supported_verdict(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_verifier_response("SUPPORTED")
 
         verifier = ClaimVerifier(api_key="test-key")
@@ -58,10 +58,10 @@ class TestClaimVerifier:
         assert verdicts[0].verdict == VerdictEnum.SUPPORTED
         assert verdicts[0].claim_id == claim.claim_id
 
-    @patch("openai.OpenAI")
-    def test_conflicted_verdict(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_conflicted_verdict(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_verifier_response("CONFLICTED")
 
         verifier = ClaimVerifier(api_key="test-key")
@@ -71,10 +71,10 @@ class TestClaimVerifier:
 
         assert verdicts[0].verdict == VerdictEnum.CONFLICTED
 
-    @patch("openai.OpenAI")
-    def test_insufficient_verdict(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_insufficient_verdict(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_verifier_response("INSUFFICIENT")
 
         verifier = ClaimVerifier(api_key="test-key")
@@ -84,10 +84,10 @@ class TestClaimVerifier:
 
         assert verdicts[0].verdict == VerdictEnum.INSUFFICIENT
 
-    @patch("openai.OpenAI")
-    def test_empty_evidence_map(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_empty_evidence_map(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_verifier_response("INSUFFICIENT")
 
         verifier = ClaimVerifier(api_key="test-key")
@@ -99,10 +99,10 @@ class TestClaimVerifier:
 
 
 class TestVerifyClaimsConvenience:
-    @patch("openai.OpenAI")
-    def test_convenience_function(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_convenience_function(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_verifier_response("SUPPORTED")
 
         claim = _make_claim()
@@ -112,7 +112,7 @@ class TestVerifyClaimsConvenience:
 
 
 class TestVerifyEmptyInput:
-    @patch("openai.OpenAI")
+    @patch("graphite.pipeline._client.create_openai_client")
     def test_empty_claims_list_returns_empty_verdicts(self, MockOpenAI):
         """Empty claims list returns empty verdicts without calling LLM."""
         mock_client = MagicMock()
@@ -126,7 +126,7 @@ class TestVerifyEmptyInput:
 
 
 class TestVerifyUnexpectedVerdictString:
-    @patch("openai.OpenAI")
+    @patch("graphite.pipeline._client.create_openai_client")
     def test_unexpected_verdict_string_defaults_to_insufficient(self, MockOpenAI):
         """Unknown verdict string falls back to INSUFFICIENT."""
         mock_client = MagicMock()
@@ -160,7 +160,7 @@ class TestVerifyUnexpectedVerdictString:
 
 
 class TestVerifierMalformedJSON:
-    @patch("openai.OpenAI")
+    @patch("graphite.pipeline._client.create_openai_client")
     def test_malformed_json_raises_value_error(self, MockOpenAI):
         """Malformed LLM response raises ValueError, not JSONDecodeError."""
         mock_client = MagicMock()

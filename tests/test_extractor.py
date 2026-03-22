@@ -18,10 +18,10 @@ def _mock_openai_response(claims_data):
 
 
 class TestClaimExtractor:
-    @patch("openai.OpenAI")
-    def test_extract_claims_parses_response(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_extract_claims_parses_response(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
 
         claims_data = [
             {
@@ -43,10 +43,10 @@ class TestClaimExtractor:
         assert result[0].object_entities == ["Tesla"]
         assert result[0].claim_id
 
-    @patch("openai.OpenAI")
-    def test_extract_multiple_claims(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_extract_multiple_claims(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
 
         claims_data = [
             {"claim_text": "C1", "subject_entities": ["A"], "predicate": "P1", "object_entities": ["B"]},
@@ -58,10 +58,10 @@ class TestClaimExtractor:
         result = extractor.extract_claims("some document")
         assert len(result) == 2
 
-    @patch("openai.OpenAI")
-    def test_empty_document_returns_empty(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_empty_document_returns_empty(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
         mock_client.chat.completions.create.return_value = _mock_openai_response([])
 
         extractor = ClaimExtractor(api_key="test-key")
@@ -70,10 +70,10 @@ class TestClaimExtractor:
 
 
 class TestExtractClaimsConvenience:
-    @patch("openai.OpenAI")
-    def test_convenience_function(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_convenience_function(self, mock_create):
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
 
         claims_data = [
             {"claim_text": "X", "subject_entities": ["A"], "predicate": "P", "object_entities": ["B"]},
@@ -85,11 +85,11 @@ class TestExtractClaimsConvenience:
 
 
 class TestExtractorMalformedJSON:
-    @patch("openai.OpenAI")
-    def test_malformed_json_raises_value_error(self, MockOpenAI):
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_malformed_json_raises_value_error(self, mock_create):
         """Malformed LLM response raises ValueError, not JSONDecodeError."""
         mock_client = MagicMock()
-        MockOpenAI.return_value = mock_client
+        mock_create.return_value = mock_client
 
         mock_message = MagicMock()
         mock_message.content = "not valid json {{"
