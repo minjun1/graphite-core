@@ -75,3 +75,49 @@ class EvidenceType(str, Enum):
     TABLE_CELL = "TABLE_CELL"  # Value from a table/chart
     DERIVED = "DERIVED"  # Computed from multiple sources
     MANUAL = "MANUAL"  # Hand-entered by researcher
+
+
+class ClaimType(str, Enum):
+    """What kind of assertion this claim makes."""
+
+    RELATIONSHIP = "RELATIONSHIP"
+    ATTRIBUTE = "ATTRIBUTE"
+    RISK_ASSERTION = "RISK_ASSERTION"
+    DEPENDENCY = "DEPENDENCY"
+
+
+class ClaimStatus(str, Enum):
+    """Trust verdict for a claim — typically computed, not manually set."""
+
+    SUPPORTED = "SUPPORTED"
+    WEAK = "WEAK"
+    MIXED = "MIXED"
+    UNSUPPORTED = "UNSUPPORTED"
+    PENDING_REVIEW = "PENDING_REVIEW"
+
+
+class ReviewState(str, Enum):
+    """Analyst review workflow state."""
+
+    UNREVIEWED = "UNREVIEWED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    NEEDS_FOLLOWUP = "NEEDS_FOLLOWUP"
+
+
+class ClaimOrigin(str, Enum):
+    """How this claim was created."""
+
+    EXTRACTOR = "EXTRACTOR"
+    AGENT = "AGENT"
+    RULE_ENGINE = "RULE_ENGINE"
+    ANALYST = "ANALYST"
+    IMPORTED = "IMPORTED"
+
+
+class ClaimGranularity(str, Enum):
+    """Abstraction level of a claim."""
+
+    ATOMIC = "ATOMIC"
+    SYNTHESIZED = "SYNTHESIZED"
+    THESIS = "THESIS"

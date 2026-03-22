@@ -15,24 +15,14 @@ Pipeline:
 # ── Core schemas ──
 from .schemas import ExtractedEdge, NodeRef, Provenance, InferenceBasis, ExtractionError
 from .enums import (
-    EdgeType,
-    NodeType,
-    SourceType,
-    ConfidenceLevel,
-    AssertionMode,
-    EvidenceType,
+    EdgeType, NodeType, SourceType, ConfidenceLevel, AssertionMode,
+    EvidenceType, ClaimType, ClaimStatus, ReviewState, ClaimOrigin,
+    ClaimGranularity,
 )
 from .evidence import EvidencePacket, EvidenceData
 
 # ── Trust engine primitives ──
-from .claim import (
-    Claim,
-    ClaimType,
-    ClaimStatus,
-    ClaimGranularity,
-    ReviewState,
-    ClaimOrigin,
-)
+from .claim import Claim
 from .claim import ConfidenceFactor, ConfidenceResult
 from .claim_store import ClaimStore
 from .confidence import ConfidenceScorer
