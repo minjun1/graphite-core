@@ -14,7 +14,7 @@ import sys
 # Ensure graphite is importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from graphite.claim import ArgumentVerdictEnum, VerdictEnum
+from graphite.pipeline.verdict import ArgumentVerdictEnum, VerdictEnum
 from graphite.pipeline import verify_agent_output
 
 

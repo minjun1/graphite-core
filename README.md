@@ -45,7 +45,7 @@
   Downstream UI and review workflows can be built directly on top of the structured output.
 
   ```python
-  from graphite.claim import ArgumentVerdictEnum
+  from graphite.pipeline.verdict import ArgumentVerdictEnum
 
   # Check for logic leaps (Argument-level verification)
   for argument in report.argument_verdicts:
