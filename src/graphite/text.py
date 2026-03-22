@@ -56,6 +56,7 @@ def build_context(doc, strategy: str = "default", **kwargs) -> str:
 
 
 def sha1_hex(s: str) -> str:
+    """Deprecated: use sha256_hex instead."""
     return hashlib.sha1(s.encode()).hexdigest()
 
 
@@ -117,7 +118,7 @@ def find_best_paragraph_for_quote(
         p_lower = p.lower()
         # Exact substring match
         if quote_lower in p_lower:
-            return i, sha1_hex(p)[:12]
+            return i, sha256_hex(p)[:12]
 
         # Word overlap score
         quote_words = set(quote_lower.split())
@@ -128,7 +129,7 @@ def find_best_paragraph_for_quote(
             best_idx = i
 
     if best_idx >= 0:
-        return best_idx, sha1_hex(paragraphs[best_idx])[:12]
+        return best_idx, sha256_hex(paragraphs[best_idx])[:12]
     return -1, ""
 
 
