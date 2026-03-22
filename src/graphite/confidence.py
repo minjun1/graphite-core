@@ -86,7 +86,7 @@ class ConfidenceScorer:
     6. Counter penalty  — weakening evidence reduces confidence
     """
 
-    def score(self, claim: "Claim") -> ConfidenceResult:
+    def score(self, claim: "Claim", now: Optional[datetime] = None) -> ConfidenceResult:
         """Compute confidence for a claim. Pure function, no side effects."""
         factors: List[ConfidenceFactor] = []
         all_evidence = claim.supporting_evidence
@@ -155,7 +155,7 @@ class ConfidenceScorer:
         )
 
         # ── Factor 4: Recency ──
-        recency_score = self._compute_recency(all_evidence)
+        recency_score = self._compute_recency(all_evidence, now=now)
         factors.append(
             ConfidenceFactor(
                 name="recency",
@@ -223,9 +223,9 @@ class ConfidenceScorer:
 
         return ConfidenceResult.from_score(final_score, factors)
 
-    def _compute_recency(self, evidence: list) -> float:
+    def _compute_recency(self, evidence: list, now: Optional[datetime] = None) -> float:
         """Score evidence recency (0.0 = very old, 1.0 = current)."""
-        now = datetime.now(timezone.utc)
+        now = now or datetime.now(timezone.utc)
         dates = []
         for p in evidence:
             for date_field in (p.extracted_at, p.observed_at, p.valid_from):

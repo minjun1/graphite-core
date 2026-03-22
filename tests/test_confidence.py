@@ -178,3 +178,22 @@ class TestConfidenceScorer:
         r2 = self.scorer.score(claim)
         assert r1.score == r2.score
         assert len(r1.factors) == len(r2.factors)
+
+    def test_recency_reproducible_with_explicit_now(self):
+        """score() with explicit now produces identical results."""
+        fixed_now = datetime(2026, 3, 21, tzinfo=timezone.utc)
+        # Create a claim with evidence from 1 year ago
+        claim = _claim(
+            supporting_evidence=[
+                Provenance(
+                    source_id="src1",
+                    source_type=SourceType.SEC_10K,
+                    evidence_quote="quote",
+                    extracted_at=(fixed_now - timedelta(days=365)).isoformat(),
+                )
+            ],
+        )
+        scorer = ConfidenceScorer()
+        r1 = scorer.score(claim, now=fixed_now)
+        r2 = scorer.score(claim, now=fixed_now)
+        assert r1.score == r2.score
