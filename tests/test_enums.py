@@ -4,6 +4,7 @@ import pytest
 from graphite.enums import (
     SourceType, EdgeType, NodeType, AssertionMode,
     ConfidenceLevel, EvidenceType,
+    ClaimType, ClaimStatus, ReviewState, ClaimOrigin, ClaimGranularity,
 )
 
 
@@ -76,3 +77,59 @@ class TestEvidenceType:
     def test_invalid_member_raises(self):
         with pytest.raises(ValueError):
             SourceType("NONEXISTENT")
+
+
+class TestClaimType:
+    def test_members(self):
+        assert ClaimType.RELATIONSHIP.value == "RELATIONSHIP"
+        assert ClaimType.ATTRIBUTE.value == "ATTRIBUTE"
+        assert ClaimType.RISK_ASSERTION.value == "RISK_ASSERTION"
+        assert ClaimType.DEPENDENCY.value == "DEPENDENCY"
+
+    def test_string_roundtrip(self):
+        assert ClaimType("RELATIONSHIP") == ClaimType.RELATIONSHIP
+
+
+class TestClaimStatus:
+    def test_members(self):
+        assert ClaimStatus.SUPPORTED.value == "SUPPORTED"
+        assert ClaimStatus.WEAK.value == "WEAK"
+        assert ClaimStatus.MIXED.value == "MIXED"
+        assert ClaimStatus.UNSUPPORTED.value == "UNSUPPORTED"
+        assert ClaimStatus.PENDING_REVIEW.value == "PENDING_REVIEW"
+
+    def test_string_roundtrip(self):
+        assert ClaimStatus("SUPPORTED") == ClaimStatus.SUPPORTED
+
+
+class TestReviewState:
+    def test_members(self):
+        assert ReviewState.UNREVIEWED.value == "UNREVIEWED"
+        assert ReviewState.APPROVED.value == "APPROVED"
+        assert ReviewState.REJECTED.value == "REJECTED"
+        assert ReviewState.NEEDS_FOLLOWUP.value == "NEEDS_FOLLOWUP"
+
+    def test_string_roundtrip(self):
+        assert ReviewState("APPROVED") == ReviewState.APPROVED
+
+
+class TestClaimOrigin:
+    def test_members(self):
+        assert ClaimOrigin.EXTRACTOR.value == "EXTRACTOR"
+        assert ClaimOrigin.AGENT.value == "AGENT"
+        assert ClaimOrigin.RULE_ENGINE.value == "RULE_ENGINE"
+        assert ClaimOrigin.ANALYST.value == "ANALYST"
+        assert ClaimOrigin.IMPORTED.value == "IMPORTED"
+
+    def test_string_roundtrip(self):
+        assert ClaimOrigin("EXTRACTOR") == ClaimOrigin.EXTRACTOR
+
+
+class TestClaimGranularity:
+    def test_members(self):
+        assert ClaimGranularity.ATOMIC.value == "ATOMIC"
+        assert ClaimGranularity.SYNTHESIZED.value == "SYNTHESIZED"
+        assert ClaimGranularity.THESIS.value == "THESIS"
+
+    def test_string_roundtrip(self):
+        assert ClaimGranularity("ATOMIC") == ClaimGranularity.ATOMIC

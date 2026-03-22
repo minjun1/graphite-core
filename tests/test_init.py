@@ -40,6 +40,19 @@ class TestPublicExports:
         from graphite import BaseRuleEngine, RuleResult, ScoreBreakdown
         assert all([BaseRuleEngine, RuleResult, ScoreBreakdown])
 
+    def test_verdict_types_importable(self):
+        """Verdict types re-exported from root package."""
+        from graphite import (
+            VerdictEnum, ArgumentVerdictEnum, VerdictRationale,
+            Verdict, ArgumentVerdict, VerificationReport,
+        )
+        assert VerdictEnum.SUPPORTED.value == "SUPPORTED"
+        assert ArgumentVerdictEnum.GROUNDED.value == "GROUNDED"
+        assert VerdictRationale is not None
+        assert Verdict is not None
+        assert ArgumentVerdict is not None
+        assert VerificationReport is not None
+
     def test_version(self):
         from graphite import __version__
         assert isinstance(__version__, str)

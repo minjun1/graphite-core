@@ -1,14 +1,11 @@
 """tests/test_evidence.py — Unit tests for graphite.evidence."""
 
 import pytest
-from graphite.claim import Claim, ConfidenceResult  # noqa: F401 — resolves EvidencePacket forward refs
 from graphite.evidence import (
     EvidenceData, ScoringData,
     CounterEvidence, EvidencePacket,
 )
 from graphite.rules import RuleResult
-
-EvidencePacket.model_rebuild()
 
 
 class TestEvidenceData:
