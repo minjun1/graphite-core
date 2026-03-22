@@ -9,11 +9,23 @@ Install: pip install graphite-engine[llm]
 
 import json
 import os
+import re
 import threading
 import time
 from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel
+
+# ── Markdown fence stripping ──
+_FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)```\s*$", re.DOTALL)
+
+
+def strip_markdown_fences(text: str) -> str:
+    """Remove markdown code fences from LLM response text."""
+    text = text.strip()
+    m = _FENCE_RE.match(text)
+    return m.group(1).strip() if m else text
+
 
 # ── Model config ──
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-pro")
@@ -96,12 +108,7 @@ def gemini_extract_structured(
                 ),
             )
 
-            raw = response.text.strip()
-            if raw.startswith("```json"):
-                raw = raw[7:-3].strip()
-            elif raw.startswith("```"):
-                raw = raw[3:-3].strip()
-
+            raw = strip_markdown_fences(response.text)
             data = json.loads(raw)
             return schema.model_validate(data)
 
@@ -142,10 +149,5 @@ def gemini_extract_json(
         ),
     )
 
-    raw = response.text.strip()
-    if raw.startswith("```json"):
-        raw = raw[7:-3].strip()
-    elif raw.startswith("```"):
-        raw = raw[3:-3].strip()
-
+    raw = strip_markdown_fences(response.text)
     return json.loads(raw)

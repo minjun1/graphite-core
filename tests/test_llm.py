@@ -128,3 +128,29 @@ class TestGeminiExtractJson:
 
         result = llm_mod.gemini_extract_json(contents="test", system_prompt="extract")
         assert result == {"fenced": True}
+
+    def test_strips_fence_with_trailing_newline(self, _patch_genai_and_reset):
+        """Regression: trailing newline after closing fence."""
+        llm_mod = _patch_genai_and_reset
+        mock_response = MagicMock()
+        mock_response.text = '```json\n{"value": 42}\n```\n'
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+        llm_mod._client = mock_client
+
+        result = llm_mod.gemini_extract_json(contents="test", system_prompt="prompt")
+        assert result == {"value": 42}
+
+    def test_strips_fence_without_json_tag(self, _patch_genai_and_reset):
+        """Handles ``` without json tag."""
+        llm_mod = _patch_genai_and_reset
+        mock_response = MagicMock()
+        mock_response.text = '```\n{"value": 42}\n```'
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+        llm_mod._client = mock_client
+
+        result = llm_mod.gemini_extract_json(contents="test", system_prompt="prompt")
+        assert result == {"value": 42}
