@@ -111,6 +111,54 @@ class TestVerifyClaimsConvenience:
         assert len(verdicts) == 1
 
 
+class TestVerifyEmptyInput:
+    @patch("openai.OpenAI")
+    def test_empty_claims_list_returns_empty_verdicts(self, MockOpenAI):
+        """Empty claims list returns empty verdicts without calling LLM."""
+        mock_client = MagicMock()
+        MockOpenAI.return_value = mock_client
+
+        verifier = ClaimVerifier(api_key="test-key")
+        result = verifier.verify_claims([], {})
+        assert result == []
+        # Verify LLM was not called
+        mock_client.chat.completions.create.assert_not_called()
+
+
+class TestVerifyUnexpectedVerdictString:
+    @patch("openai.OpenAI")
+    def test_unexpected_verdict_string_defaults_to_insufficient(self, MockOpenAI):
+        """Unknown verdict string falls back to INSUFFICIENT."""
+        mock_client = MagicMock()
+        MockOpenAI.return_value = mock_client
+
+        mock_message = MagicMock()
+        mock_message.content = json.dumps({
+            "verdict": "MAYBE",
+            "rationale_text": "uncertain",
+            "contradiction_type": None,
+            "missing_evidence_reason": None,
+            "temporal_alignment": None,
+            "needs_human_review": False,
+            "cited_span": None,
+            "supporting_evidence_indices": [],
+            "conflicting_evidence_indices": [],
+        })
+        mock_choice = MagicMock()
+        mock_choice.message = mock_message
+        mock_response = MagicMock()
+        mock_response.choices = [mock_choice]
+        mock_client.chat.completions.create.return_value = mock_response
+
+        verifier = ClaimVerifier(api_key="test-key")
+        claim = _make_claim()
+        evidence_map = {claim.claim_id: [{"text": "evidence", "document_id": "doc1"}]}
+        verdicts = verifier.verify_claims([claim], evidence_map)
+
+        assert len(verdicts) == 1
+        assert verdicts[0].verdict == VerdictEnum.INSUFFICIENT
+
+
 class TestVerifierMalformedJSON:
     @patch("openai.OpenAI")
     def test_malformed_json_raises_value_error(self, MockOpenAI):
