@@ -1,0 +1,25 @@
+{
+    "meta": {
+        "model": "WeatherNext2",
+        "init_time": "2024-07-06T00:00:00Z",
+        "resolution_deg": 0.25
+    },
+    "forecast_points": [
+        {
+            "node_id": "asset:PORT_HOUSTON",
+            "lat": 29.7355,
+            "lon": -95.2690,
+            "max_wind_kph": 145,
+            "precip_mm_72h": 380,
+            "storm_surge_m": 2.1
+        },
+        {
+            "node_id": "facility:EXXON_BAYTOWN",
+            "lat": 29.7356,
+            "lon": -95.0138,
+            "max_wind_kph": 130,
+            "precip_mm_72h": 320,
+            "storm_surge_m": 1.5
+        }
+    ]
+}

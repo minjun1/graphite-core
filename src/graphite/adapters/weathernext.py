@@ -41,6 +41,7 @@ class WeatherNextAdapter:
     ):
         self.live = live
         self._data = None
+        self._meta = None
         self._snapshot_path = snapshot_path
 
         if snapshot_path:
