@@ -1,7 +1,6 @@
 """tests/test_domain.py — Unit tests for graphite.domain."""
 
 import pytest
-import networkx as nx
 from graphite.domain import (
     ExtractionResult, DocumentContext, BaseFetcher, BaseExtractor,
     BasePipeline, DomainSpec, register_domain, get_domain, list_domains,
@@ -117,11 +116,11 @@ class TestBasePipeline:
     def test_concrete_subclass(self):
         class FakePipeline(BasePipeline):
             def run(self, entity_ids, output_path, **kwargs):
-                return nx.DiGraph()
+                return {"entities": entity_ids}
 
         p = FakePipeline()
-        g = p.run(["AAPL"], "/tmp/out.json")
-        assert isinstance(g, nx.DiGraph)
+        result = p.run(["AAPL"], "/tmp/out.json")
+        assert result == {"entities": ["AAPL"]}
 
 
 class TestDomainRegistry:

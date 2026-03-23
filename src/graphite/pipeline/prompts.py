@@ -53,7 +53,7 @@ class PromptSet(BaseModel):
     verifier: str = Field(default=VERIFIER_SYSTEM_PROMPT)
     analyzer: str = Field(default=ANALYZER_SYSTEM_PROMPT)
 
-    _overridden: set = set()
+    _overridden: set = None  # type: ignore[assignment]  # set per-instance in __init__
 
     def __init__(self, **data):
         super().__init__(**data)
