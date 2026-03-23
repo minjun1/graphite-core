@@ -5,7 +5,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from graphite.pipeline.verifier import ClaimVerifier, verify_claims
-from graphite.claim import Claim, ClaimType, ClaimOrigin, ClaimGranularity, VerdictEnum
+from graphite.claim import Claim, ClaimType, ClaimOrigin, ClaimGranularity
+from graphite.pipeline.verdict import VerdictEnum
 from graphite.enums import AssertionMode
 
 

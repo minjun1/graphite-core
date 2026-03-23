@@ -4,8 +4,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from graphite.pipeline.report import verify_agent_output, review_document
-from graphite.claim import (
-    Claim, ClaimType, ClaimOrigin, ClaimGranularity,
+from graphite.claim import Claim, ClaimType, ClaimOrigin, ClaimGranularity
+from graphite.pipeline.verdict import (
     Verdict, VerdictEnum, VerdictRationale,
     ArgumentVerdict, ArgumentVerdictEnum,
     VerificationReport,

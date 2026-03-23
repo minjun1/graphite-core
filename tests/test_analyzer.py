@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from graphite.pipeline.analyzer import ArgumentAnalyzer, analyze_argument_chain
-from graphite.claim import (
+from graphite.pipeline.verdict import (
     Verdict, VerdictEnum, VerdictRationale,
     ArgumentVerdictEnum,
 )
