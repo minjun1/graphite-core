@@ -9,7 +9,7 @@
     </p>
   </div>
 
-  > ⚠️ **v0.3.x — Experimental**. Usable and tested, but API may change before 1.0. Pin your version.
+  > ⚠️ **v0.4.x — Experimental**. Usable and tested, but API may change before 1.0. Pin your version.
 
   ---
 

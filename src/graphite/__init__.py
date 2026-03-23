@@ -76,7 +76,7 @@ __all__ = [
     "EvalCase", "EvalResult", "EvalRun", "EvalRunner",
 ]
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 # Resolve forward references in EvidencePacket
 # (must be after Claim and ConfidenceResult are imported)

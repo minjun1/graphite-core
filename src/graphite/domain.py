@@ -139,7 +139,7 @@ class BasePipeline(ABC):
             output_path: Path to save the resulting graph
 
         Returns:
-            The assembled NetworkX DiGraph
+            The pipeline output (domain-specific)
         """
 
 
