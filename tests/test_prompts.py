@@ -43,3 +43,28 @@ class TestPromptSet:
         assert merged.extractor == EXTRACTOR_SYSTEM_PROMPT
         assert merged.verifier == "Medical fact-checker."
         assert merged.analyzer == ANALYZER_SYSTEM_PROMPT
+
+
+class TestPromptSetMergeSentinel:
+    def test_merge_no_args_keeps_base(self):
+        """PromptSet() with no overrides should not replace base values."""
+        base = PromptSet(extractor="Custom base extractor.")
+        no_override = PromptSet()
+        merged = base.merge(no_override)
+        assert merged.extractor == "Custom base extractor."
+
+    def test_merge_explicit_default_is_override(self):
+        """Explicitly passing the default value should still count as an override."""
+        base = PromptSet(extractor="Custom base extractor.")
+        override = PromptSet(extractor=EXTRACTOR_SYSTEM_PROMPT)
+        merged = base.merge(override)
+        assert merged.extractor == EXTRACTOR_SYSTEM_PROMPT
+
+    def test_merge_partial_override(self):
+        """Override only verifier, keep extractor and analyzer from base."""
+        base = PromptSet(extractor="Custom extractor.", analyzer="Custom analyzer.")
+        override = PromptSet(verifier="Custom verifier.")
+        merged = base.merge(override)
+        assert merged.extractor == "Custom extractor."
+        assert merged.verifier == "Custom verifier."
+        assert merged.analyzer == "Custom analyzer."

@@ -46,18 +46,25 @@ class PromptSet(BaseModel):
     """A set of system prompts for the verification pipeline.
 
     Supply only the prompts you want to override; others default to built-ins.
+    Tracks which fields were explicitly set for correct merge behavior.
     """
 
     extractor: str = Field(default=EXTRACTOR_SYSTEM_PROMPT)
     verifier: str = Field(default=VERIFIER_SYSTEM_PROMPT)
     analyzer: str = Field(default=ANALYZER_SYSTEM_PROMPT)
 
+    _overridden: set = set()
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self._overridden = set(data.keys()) & {"extractor", "verifier", "analyzer"}
+
     def merge(self, override: "PromptSet") -> "PromptSet":
-        """Return a new PromptSet using override values where they differ from defaults."""
+        """Return a new PromptSet using override values where explicitly set."""
         return PromptSet(
-            extractor=override.extractor if override.extractor != EXTRACTOR_SYSTEM_PROMPT else self.extractor,
-            verifier=override.verifier if override.verifier != VERIFIER_SYSTEM_PROMPT else self.verifier,
-            analyzer=override.analyzer if override.analyzer != ANALYZER_SYSTEM_PROMPT else self.analyzer,
+            extractor=override.extractor if "extractor" in override._overridden else self.extractor,
+            verifier=override.verifier if "verifier" in override._overridden else self.verifier,
+            analyzer=override.analyzer if "analyzer" in override._overridden else self.analyzer,
         )
 
 
