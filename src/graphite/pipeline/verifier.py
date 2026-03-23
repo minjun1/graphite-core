@@ -13,9 +13,11 @@ from graphite.pipeline.verdict import Verdict, VerdictEnum, VerdictRationale
 class ClaimVerifier:
     """Evaluates claims against retrieved evidence spans."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
         from graphite.pipeline._client import create_openai_client
+        from graphite.pipeline.prompts import VERIFIER_SYSTEM_PROMPT
         self.client = create_openai_client(api_key=api_key, base_url=base_url)
+        self.system_prompt = system_prompt or VERIFIER_SYSTEM_PROMPT
 
     def verify_claims(
         self,
@@ -29,21 +31,6 @@ class ClaimVerifier:
         """
         verdicts = []
 
-        system_prompt = (
-            "You are an expert fact-checker. You will be given a CLAIM and a set of EVIDENCE chunks. "
-            "Determine if the claim is SUPPORTED, CONFLICTED, or INSUFFICIENT based ONLY on the evidence. "
-            "You must return JSON with the following keys: "
-            "'verdict' (SUPPORTED|CONFLICTED|INSUFFICIENT), "
-            "'rationale_text' (string explanation), "
-            "'contradiction_type' (string or null, e.g. 'numeric mismatch'), "
-            "'missing_evidence_reason' (string or null), "
-            "'temporal_alignment' (string or null, e.g. 'stale evidence'), "
-            "'needs_human_review' (boolean), "
-            "'cited_span' (exact quote from evidence used, or null), "
-            "'supporting_evidence_indices' (list of ints), "
-            "'conflicting_evidence_indices' (list of ints)."
-        )
-
         for claim in claims:
             chunks = evidence_map.get(claim.claim_id, [])
             evidence_text = "\n".join(
@@ -55,7 +42,7 @@ class ClaimVerifier:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": system_prompt},
+                    {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format={"type": "json_object"},
@@ -117,7 +104,8 @@ def verify_claims(
     evidence_map: Dict[str, List[Dict[str, Any]]],
     model: str = "gemini-2.5-flash",
     api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
 ) -> List[Verdict]:
     """Convenience functional interface for claim verification."""
-    verifier = ClaimVerifier(api_key=api_key)
+    verifier = ClaimVerifier(api_key=api_key, system_prompt=system_prompt)
     return verifier.verify_claims(claims, evidence_map, model=model)

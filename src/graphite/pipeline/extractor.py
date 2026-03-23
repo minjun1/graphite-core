@@ -12,26 +12,21 @@ from graphite.enums import AssertionMode
 class ClaimExtractor:
     """Extracts atomic claims from documents using an OpenAI-compatible LLM."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
         from graphite.pipeline._client import create_openai_client
+        from graphite.pipeline.prompts import EXTRACTOR_SYSTEM_PROMPT
         self.client = create_openai_client(api_key=api_key, base_url=base_url)
+        self.system_prompt = system_prompt or EXTRACTOR_SYSTEM_PROMPT
 
     def extract_claims(
         self, document: str, model: str = "gemini-2.5-flash"
     ) -> List[Claim]:
         """Parse raw text into discrete atomic claims."""
 
-        system_prompt = (
-            "You are an expert fact-extractor. Given a document, extract all distinct factual claims. "
-            "For each claim, identify the subject entities, the predicate (relationship/action), and the object entities. "
-            "Return JSON with a 'claims' array. Each item should have: "
-            "'claim_text' (string), 'subject_entities' (list of str), 'predicate' (string), and 'object_entities' (list of str)."
-        )
-
         response = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": document},
             ],
             response_format={"type": "json_object"},
@@ -64,8 +59,9 @@ class ClaimExtractor:
 
 
 def extract_claims(
-    document: str, model: str = "gemini-2.5-flash", api_key: Optional[str] = None
+    document: str, model: str = "gemini-2.5-flash", api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
 ) -> List[Claim]:
     """Convenience function to extract claims using the default provider."""
-    extractor = ClaimExtractor(api_key=api_key)
+    extractor = ClaimExtractor(api_key=api_key, system_prompt=system_prompt)
     return extractor.extract_claims(document, model=model)

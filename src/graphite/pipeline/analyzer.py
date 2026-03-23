@@ -16,9 +16,11 @@ from graphite.pipeline.verdict import (
 class ArgumentAnalyzer:
     """Analyzes the overall argument chain for unsupported conclusions (CONCLUSION_JUMP)."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
         from graphite.pipeline._client import create_openai_client
+        from graphite.pipeline.prompts import ANALYZER_SYSTEM_PROMPT
         self.client = create_openai_client(api_key=api_key, base_url=base_url)
+        self.system_prompt = system_prompt or ANALYZER_SYSTEM_PROMPT
 
     def analyze_argument_chain(
         self, memo_text: str, verdicts: List[Verdict], model: str = "gemini-2.5-flash"
@@ -26,18 +28,6 @@ class ArgumentAnalyzer:
         """
         Evaluate if the document's overall conclusions logically follow from the supported claims.
         """
-        system_prompt = (
-            "You are an expert logical analyzer. You will see an original MEMO containing arguments, "
-            "and a list of VERDICTS for individual factual claims within that memo. "
-            "Some claims may be SUPPORTED, others CONFLICTED. "
-            "Identify any major 'conclusion leaps' where the memo makes a broad assertion or recommendation "
-            "that is NOT justified by the supported facts, or is actively undermined by conflicted facts. "
-            "Return JSON with an 'argument_verdicts' array. Each item should have: "
-            "'text' (the conclusion text), 'verdict' (GROUNDED|CONCLUSION_JUMP|OVERSTATED), "
-            "'rationale_text' (string), 'contradiction_type' (string or null), "
-            "'needs_human_review' (boolean)."
-        )
-
         verdicts_summary = ""
         for v in verdicts:
             verdicts_summary += f"- Claim: {v.claim_text}\n  Verdict: {v.verdict.value}\n  Rationale: {v.rationale.text}\n\n"
@@ -47,7 +37,7 @@ class ArgumentAnalyzer:
         response = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
             response_format={"type": "json_object"},
@@ -90,7 +80,8 @@ def analyze_argument_chain(
     verdicts: List[Verdict],
     model: str = "gemini-2.5-flash",
     api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
 ) -> List[ArgumentVerdict]:
     """Convenience functional interface for argument analysis."""
-    analyzer = ArgumentAnalyzer(api_key=api_key)
+    analyzer = ArgumentAnalyzer(api_key=api_key, system_prompt=system_prompt)
     return analyzer.analyze_argument_chain(memo_text, verdicts, model=model)

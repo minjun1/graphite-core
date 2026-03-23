@@ -179,3 +179,20 @@ class TestVerifierMalformedJSON:
         evidence_map = {claim.claim_id: [{"text": "evidence", "document_id": "doc1"}]}
         with pytest.raises(ValueError, match="LLM returned invalid JSON"):
             verifier.verify_claims([claim], evidence_map)
+
+
+class TestCustomPrompt:
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_custom_system_prompt_is_used(self, mock_create):
+        mock_client = MagicMock()
+        mock_create.return_value = mock_client
+        mock_client.chat.completions.create.return_value = _mock_verifier_response("SUPPORTED")
+
+        verifier = ClaimVerifier(api_key="test-key", system_prompt="Custom verifier prompt.")
+        claim = _make_claim()
+        evidence_map = {claim.claim_id: [{"text": "evidence", "document_id": "doc1"}]}
+        verifier.verify_claims([claim], evidence_map)
+
+        call_args = mock_client.chat.completions.create.call_args
+        messages = call_args.kwargs["messages"]
+        assert messages[0]["content"] == "Custom verifier prompt."

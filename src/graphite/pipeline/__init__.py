@@ -7,6 +7,7 @@ from .extractor import extract_claims
 from .retriever import retrieve_evidence
 from .verifier import verify_claims
 from .analyzer import analyze_argument_chain
+from .prompts import PromptSet, DEFAULT_PROMPTS
 from .verdict import (
     VerdictEnum,
     ArgumentVerdictEnum,
@@ -29,4 +30,6 @@ __all__ = [
     "Verdict",
     "ArgumentVerdict",
     "VerificationReport",
+    "PromptSet",
+    "DEFAULT_PROMPTS",
 ]

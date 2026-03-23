@@ -6,10 +6,11 @@ import hashlib
 from typing import List, Dict, Any, Optional
 
 from graphite.pipeline.verdict import VerificationReport, VerdictEnum, ArgumentVerdictEnum
-from graphite.pipeline.extractor import extract_claims
+from graphite.pipeline.extractor import ClaimExtractor
 from graphite.pipeline.retriever import retrieve_evidence
-from graphite.pipeline.verifier import verify_claims
-from graphite.pipeline.analyzer import analyze_argument_chain
+from graphite.pipeline.verifier import ClaimVerifier
+from graphite.pipeline.analyzer import ArgumentAnalyzer
+from graphite.pipeline.prompts import PromptSet, DEFAULT_PROMPTS
 
 
 def verify_agent_output(
@@ -17,6 +18,7 @@ def verify_agent_output(
     corpus: List[Dict[str, str]],
     model: str = "gemini-2.5-flash",
     api_key: Optional[str] = None,
+    prompts: Optional[PromptSet] = None,
 ) -> VerificationReport:
     """
     The Hero API: End-to-end verification pipeline.
@@ -29,21 +31,23 @@ def verify_agent_output(
     Returns:
         VerificationReport: The aggregated results, ready for UI and audit logs.
     """
+    prompts = prompts or DEFAULT_PROMPTS
     document_id = hashlib.sha256(text.encode()).hexdigest()[:12]
 
     # 1. Extract
-    claims = extract_claims(text, model=model, api_key=api_key)
+    extractor = ClaimExtractor(api_key=api_key, system_prompt=prompts.extractor)
+    claims = extractor.extract_claims(text, model=model)
 
     # 2. Retrieve
     evidence_map = retrieve_evidence(claims, corpus)
 
     # 3. Verify
-    verdicts = verify_claims(claims, evidence_map, model=model, api_key=api_key)
+    verifier = ClaimVerifier(api_key=api_key, system_prompt=prompts.verifier)
+    verdicts = verifier.verify_claims(claims, evidence_map, model=model)
 
     # 4. Analyze Arguments
-    argument_verdicts = analyze_argument_chain(
-        text, verdicts, model=model, api_key=api_key
-    )
+    analyzer = ArgumentAnalyzer(api_key=api_key, system_prompt=prompts.analyzer)
+    argument_verdicts = analyzer.analyze_argument_chain(text, verdicts, model=model)
 
     # 5. Build Report
     report = VerificationReport(

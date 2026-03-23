@@ -127,3 +127,21 @@ class TestAnalyzerMalformedJSON:
         analyzer = ArgumentAnalyzer(api_key="test-key")
         with pytest.raises(ValueError, match="LLM returned invalid JSON"):
             analyzer.analyze_argument_chain("memo", [_make_verdict()])
+
+
+class TestCustomPrompt:
+    @patch("graphite.pipeline._client.create_openai_client")
+    def test_custom_system_prompt_is_used(self, mock_create):
+        mock_client = MagicMock()
+        mock_create.return_value = mock_client
+        mock_client.chat.completions.create.return_value = _mock_analyzer_response([
+            {"text": "ok", "verdict": "GROUNDED", "rationale_text": "fine",
+             "contradiction_type": None, "needs_human_review": False},
+        ])
+
+        analyzer = ArgumentAnalyzer(api_key="test-key", system_prompt="Custom analyzer prompt.")
+        analyzer.analyze_argument_chain("memo", [_make_verdict()])
+
+        call_args = mock_client.chat.completions.create.call_args
+        messages = call_args.kwargs["messages"]
+        assert messages[0]["content"] == "Custom analyzer prompt."
