@@ -2,6 +2,7 @@
 
 import json
 import time
+from collections import Counter
 from typing import List, Optional
 
 from graphite.eval.types import EvalCase, EvalResult, EvalRun
@@ -73,13 +74,13 @@ class EvalRunner:
         actual_claim = [v.verdict.value for v in report.verdicts]
         actual_arg = [v.verdict.value for v in report.argument_verdicts]
 
-        # Claim verdict pass: all expected verdicts appear in actual
-        claim_pass = all(ev in actual_claim for ev in case.expected_claim_verdicts)
+        # Claim verdict pass: all expected verdicts appear in actual (with multiplicity)
+        claim_pass = not (Counter(case.expected_claim_verdicts) - Counter(actual_claim))
 
         # Argument verdict pass: all expected appear in actual (or no expectation)
         arg_pass = True
         if case.expected_argument_verdicts:
-            arg_pass = all(ev in actual_arg for ev in case.expected_argument_verdicts)
+            arg_pass = not (Counter(case.expected_argument_verdicts) - Counter(actual_arg))
 
         return EvalResult(
             case_id=case.id,
