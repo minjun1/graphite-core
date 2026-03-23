@@ -92,23 +92,46 @@
   python examples/quickstart_verification/run.py
   ```
 
-  Graphite defaults to Gemini via the OpenAI-compatible endpoint, so any OpenAI-compatible provider also works — including local models via Ollama or vLLM, or hosted endpoints like Together and Groq. Set `OPENAI_API_KEY` and `OPENAI_BASE_URL` to point at any compatible endpoint.
+  ### Supported Models
+
+  Graphite works with any major LLM provider:
+
+  ```python
+  from graphite.pipeline import verify_agent_output
+
+  # Gemini (default)
+  report = verify_agent_output(text, corpus)
+
+  # Claude
+  report = verify_agent_output(text, corpus, model="claude-sonnet-4-6")
+
+  # OpenAI
+  report = verify_agent_output(text, corpus, model="gpt-4o")
+
+  # Local models (Ollama, vLLM)
+  report = verify_agent_output(text, corpus, model="llama3")
+  ```
+
+  Set the appropriate API key for your provider:
+  - `GEMINI_API_KEY` — Google Gemini (default)
+  - `ANTHROPIC_API_KEY` — Anthropic Claude
+  - `OPENAI_API_KEY` + `OPENAI_BASE_URL` — OpenAI or any compatible endpoint
 
   ---
 
-  ## Why a Graph?
+  ## Why a Verification Memory?
 
-  Most verification tools run once and forget. Graphite anchors every judgment into a persistent graph — turning disposable LLM outputs into a living verification memory.
+  Most verification tools run once and forget. Graphite anchors every judgment into a persistent claim store — turning disposable LLM outputs into a living verification memory.
 
   **Claims are first-class objects.** The same assertion can be identified, revisited, and re-evaluated across documents and time — not lost in prompt logs.
 
-  **Evidence accumulates, not overwrites.** When a second source confirms (or contradicts) a claim, Graphite appends the new evidence to the existing node instead of starting from scratch.
+  **Evidence accumulates, not overwrites.** When a second source confirms (or contradicts) a claim, Graphite appends the new evidence to the existing claim instead of starting from scratch.
 
-  **Review history becomes lineage.** AI verdict → analyst override → re-evaluation with new data — every step is recorded as a relationship in the graph, not a flat log entry.
+  **Review history becomes lineage.** AI verdict → analyst override → re-evaluation with new data — every step is recorded as part of the claim's provenance, not a flat log entry.
 
   **Cross-document deduplication.** When the same claim appears in TSMC's 10-K and Nvidia's 10-K, Graphite recognizes it as one canonical claim backed by two independent sources.
 
-  **Reasoning structure, not just fact-checking.** Claims don't exist in isolation. Graphite can represent claim-to-conclusion relationships, enabling checks like `CONCLUSION_JUMP` when the logical link between premises and conclusion is unsupported.
+  **Reasoning structure, not just fact-checking.** Claims don't exist in isolation. Graphite represents claim-to-conclusion relationships, enabling checks like `CONCLUSION_JUMP` when the logical link between premises and conclusion is unsupported.
 
   ---
 
@@ -222,7 +245,7 @@
 
   ## Optional extras
 
-  **Core** (always included): `networkx` + `pydantic`
+  **Core** (always included): `pydantic`
 
   ```bash
   pip install -e ".[llm]"     # LLM support (OpenAI-compatible providers)
