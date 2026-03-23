@@ -22,6 +22,7 @@ class SourceType(str, Enum):
     EARTH_OBSERVATION = "EARTH_OBSERVATION"
     PUBLIC_REPORT = "PUBLIC_REPORT"
     GEOSPATIAL_DATA = "GEOSPATIAL_DATA"
+    DOCUMENT = "DOCUMENT"
 
 
 class EdgeType(str, Enum):
