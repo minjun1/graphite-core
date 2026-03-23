@@ -5,9 +5,13 @@ and Anthropic (Claude) through a single chat_json() interface.
 """
 
 import json
+import logging
 import os
 import re
+import time
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)```\s*$", re.DOTALL)
 
@@ -49,11 +53,25 @@ class LLMClient:
         model: str,
         system_prompt: str,
         user_prompt: str,
+        max_retries: int = 3,
     ) -> dict:
-        """Send a chat request and return parsed JSON response."""
-        if self._is_anthropic(model):
-            return self._chat_anthropic(model, system_prompt, user_prompt)
-        return self._chat_openai(model, system_prompt, user_prompt)
+        """Send a chat request and return parsed JSON response with retry."""
+        if max_retries < 1:
+            raise RuntimeError("chat_json: max_retries must be >= 1")
+        for attempt in range(max_retries):
+            try:
+                if self._is_anthropic(model):
+                    return self._chat_anthropic(model, system_prompt, user_prompt)
+                return self._chat_openai(model, system_prompt, user_prompt)
+            except (json.JSONDecodeError, ConnectionError, TimeoutError, OSError) as e:
+                if attempt == max_retries - 1:
+                    raise
+                wait = 2 ** (attempt + 1)
+                logger.warning(
+                    "LLM attempt %d failed: %s. Retry in %ds...",
+                    attempt + 1, e, wait,
+                )
+                time.sleep(wait)
 
     def _chat_openai(self, model: str, system_prompt: str, user_prompt: str) -> dict:
         try:
