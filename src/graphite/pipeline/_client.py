@@ -5,9 +5,13 @@ and Anthropic (Claude) through a single chat_json() interface.
 """
 
 import json
+import logging
 import os
 import re
+import time
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)```\s*$", re.DOTALL)
 
@@ -16,10 +20,6 @@ def _strip_fences(text: str) -> str:
     text = text.strip()
     m = _FENCE_RE.match(text)
     return m.group(1).strip() if m else text
-
-
-# Known non-Anthropic model prefixes
-_NON_ANTHROPIC_PREFIXES = ("gemini", "gpt", "o1", "o3", "llama", "mistral", "qwen")
 
 
 class LLMClient:
@@ -35,25 +35,32 @@ class LLMClient:
 
     def _is_anthropic(self, model: str) -> bool:
         """Determine if a model should use the Anthropic SDK."""
-        if model.startswith("claude"):
-            return True
-        if model.startswith(_NON_ANTHROPIC_PREFIXES):
-            return False
-        # For unknown model names, fall back to env var presence
-        if os.environ.get("ANTHROPIC_API_KEY"):
-            return True
-        return False
+        return model.startswith("claude")
 
     def chat_json(
         self,
         model: str,
         system_prompt: str,
         user_prompt: str,
+        max_retries: int = 3,
     ) -> dict:
-        """Send a chat request and return parsed JSON response."""
-        if self._is_anthropic(model):
-            return self._chat_anthropic(model, system_prompt, user_prompt)
-        return self._chat_openai(model, system_prompt, user_prompt)
+        """Send a chat request and return parsed JSON response with retry."""
+        if max_retries < 1:
+            raise RuntimeError("chat_json: max_retries must be >= 1")
+        for attempt in range(max_retries):
+            try:
+                if self._is_anthropic(model):
+                    return self._chat_anthropic(model, system_prompt, user_prompt)
+                return self._chat_openai(model, system_prompt, user_prompt)
+            except (json.JSONDecodeError, ConnectionError, TimeoutError, OSError) as e:
+                if attempt == max_retries - 1:
+                    raise
+                wait = 2 ** (attempt + 1)
+                logger.warning(
+                    "LLM attempt %d failed: %s. Retry in %ds...",
+                    attempt + 1, e, wait,
+                )
+                time.sleep(wait)
 
     def _chat_openai(self, model: str, system_prompt: str, user_prompt: str) -> dict:
         try:

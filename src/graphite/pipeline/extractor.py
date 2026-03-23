@@ -9,10 +9,11 @@ from graphite.enums import AssertionMode
 class ClaimExtractor:
     """Extracts atomic claims from documents using any supported LLM."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None,
+                 system_prompt: Optional[str] = None, client=None):
         from graphite.pipeline._client import create_llm_client
         from graphite.pipeline.prompts import EXTRACTOR_SYSTEM_PROMPT
-        self.client = create_llm_client(api_key=api_key, base_url=base_url)
+        self.client = client or create_llm_client(api_key=api_key, base_url=base_url)
         self.system_prompt = system_prompt or EXTRACTOR_SYSTEM_PROMPT
 
     def extract_claims(

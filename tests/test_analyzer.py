@@ -102,6 +102,20 @@ class TestAnalyzeConvenience:
         assert len(results) == 1
 
 
+class TestClientInjection:
+    def test_injected_client_is_used(self):
+        from graphite.pipeline._client import LLMClient
+        mock_client = MagicMock(spec=LLMClient)
+        mock_client.chat_json.return_value = _mock_analyzer_json([
+            {"text": "ok", "verdict": "GROUNDED", "rationale_text": "fine",
+             "contradiction_type": None, "needs_human_review": False},
+        ])
+
+        analyzer = ArgumentAnalyzer(client=mock_client)
+        analyzer.analyze_argument_chain("memo", [_make_verdict()])
+        mock_client.chat_json.assert_called_once()
+
+
 class TestAnalyzerErrors:
     @patch("graphite.pipeline._client.create_llm_client")
     def test_chat_json_error_propagates(self, mock_create):

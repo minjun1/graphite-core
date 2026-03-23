@@ -53,6 +53,12 @@ class TestPublicExports:
         assert ArgumentVerdict is not None
         assert VerificationReport is not None
 
+    def test_null_handler_attached(self):
+        """Graphite logger should have NullHandler for library silence by default."""
+        import logging
+        logger = logging.getLogger("graphite")
+        assert any(isinstance(h, logging.NullHandler) for h in logger.handlers)
+
     def test_version(self):
         from graphite import __version__
         assert isinstance(__version__, str)

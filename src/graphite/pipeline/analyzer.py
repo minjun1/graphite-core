@@ -13,10 +13,11 @@ from graphite.pipeline.verdict import (
 class ArgumentAnalyzer:
     """Analyzes the overall argument chain for unsupported conclusions."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None,
+                 system_prompt: Optional[str] = None, client=None):
         from graphite.pipeline._client import create_llm_client
         from graphite.pipeline.prompts import ANALYZER_SYSTEM_PROMPT
-        self.client = create_llm_client(api_key=api_key, base_url=base_url)
+        self.client = client or create_llm_client(api_key=api_key, base_url=base_url)
         self.system_prompt = system_prompt or ANALYZER_SYSTEM_PROMPT
 
     def analyze_argument_chain(

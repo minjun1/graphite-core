@@ -18,35 +18,42 @@ def verify_agent_output(
     corpus: List[Dict[str, str]],
     model: str = "gemini-2.5-flash",
     api_key: Optional[str] = None,
+    base_url: Optional[str] = None,
     prompts: Optional[PromptSet] = None,
 ) -> VerificationReport:
     """
     The Hero API: End-to-end verification pipeline.
 
     Args:
-        text (str): The agent-generated markdown memo or assertions.
-        corpus (List[Dict[str, str]]): List of evidence documents e.g. [{"document_id": "doc1", "text": "..."}]
-        model (str): LLM model name to use across the pipeline.
+        text: The agent-generated markdown memo or assertions.
+        corpus: List of evidence documents e.g. [{"document_id": "doc1", "text": "..."}]
+        model: LLM model name to use across the pipeline.
+        api_key: API key (or set GEMINI_API_KEY/OPENAI_API_KEY/ANTHROPIC_API_KEY).
+        base_url: Custom endpoint URL for OpenAI-compatible or Anthropic proxies.
+        prompts: Optional PromptSet for domain-specific prompts.
 
     Returns:
         VerificationReport: The aggregated results, ready for UI and audit logs.
     """
+    from graphite.pipeline._client import create_llm_client
+
     prompts = prompts or DEFAULT_PROMPTS
+    client = create_llm_client(api_key=api_key, base_url=base_url)
     document_id = hashlib.sha256(text.encode()).hexdigest()[:12]
 
     # 1. Extract
-    extractor = ClaimExtractor(api_key=api_key, system_prompt=prompts.extractor)
+    extractor = ClaimExtractor(client=client, system_prompt=prompts.extractor)
     claims = extractor.extract_claims(text, model=model)
 
     # 2. Retrieve
     evidence_map = retrieve_evidence(claims, corpus)
 
     # 3. Verify
-    verifier = ClaimVerifier(api_key=api_key, system_prompt=prompts.verifier)
+    verifier = ClaimVerifier(client=client, system_prompt=prompts.verifier)
     verdicts = verifier.verify_claims(claims, evidence_map, model=model)
 
     # 4. Analyze Arguments
-    analyzer = ArgumentAnalyzer(api_key=api_key, system_prompt=prompts.analyzer)
+    analyzer = ArgumentAnalyzer(client=client, system_prompt=prompts.analyzer)
     argument_verdicts = analyzer.analyze_argument_chain(text, verdicts, model=model)
 
     # 5. Build Report

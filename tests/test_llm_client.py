@@ -11,24 +11,22 @@ class TestLLMClientProviderDetection:
         assert client._is_anthropic("claude-sonnet-4-6") is True
         assert client._is_anthropic("claude-haiku-4-5-20251001") is True
 
-    def test_gemini_model_selects_openai(self):
+    def test_non_claude_model_selects_openai(self):
         from graphite.pipeline._client import LLMClient
         client = LLMClient(api_key="test-key")
         assert client._is_anthropic("gemini-2.5-flash") is False
         assert client._is_anthropic("gpt-4o") is False
+        assert client._is_anthropic("llama3") is False
+        assert client._is_anthropic("my-custom-model") is False
 
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "ant-key"}, clear=True)
-    def test_anthropic_env_key_selects_anthropic_for_unknown_model(self):
-        from graphite.pipeline._client import LLMClient
-        client = LLMClient(api_key="test-key")
-        assert client._is_anthropic("my-custom-model") is True
-
-    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "ant-key"}, clear=True)
-    def test_gemini_model_not_routed_to_anthropic(self):
+    def test_env_key_does_not_affect_routing(self):
+        """ANTHROPIC_API_KEY should NOT affect routing — only model name matters."""
         from graphite.pipeline._client import LLMClient
         client = LLMClient(api_key="test-key")
         assert client._is_anthropic("gemini-2.5-flash") is False
-        assert client._is_anthropic("gpt-4o") is False
+        assert client._is_anthropic("my-custom-model") is False
+        assert client._is_anthropic("claude-sonnet-4-6") is True
 
 
 class TestLLMClientAPIKeyResolution:
@@ -68,6 +66,62 @@ class TestLLMClientChatJSON:
         result = client.chat_json("claude-sonnet-4-6", "system", "user")
         assert result == {"claims": []}
         mock_chat.assert_called_once()
+
+
+class TestLLMClientRetry:
+    @patch("graphite.pipeline._client.LLMClient._chat_openai")
+    def test_retries_on_json_decode_error(self, mock_chat):
+        """Transient JSONDecodeError should be retried."""
+        import json as _json
+        from graphite.pipeline._client import LLMClient
+        mock_chat.side_effect = [
+            _json.JSONDecodeError("bad", "", 0),
+            {"claims": []},
+        ]
+        client = LLMClient(api_key="test-key")
+        with patch("time.sleep"):
+            result = client.chat_json("gemini-2.5-flash", "sys", "usr", max_retries=3)
+        assert result == {"claims": []}
+        assert mock_chat.call_count == 2
+
+    @patch("graphite.pipeline._client.LLMClient._chat_openai")
+    def test_does_not_retry_import_error(self, mock_chat):
+        """ImportError (SDK missing) should NOT be retried."""
+        from graphite.pipeline._client import LLMClient
+        mock_chat.side_effect = ImportError("no module")
+        client = LLMClient(api_key="test-key")
+        with pytest.raises(ImportError):
+            client.chat_json("gemini-2.5-flash", "sys", "usr", max_retries=3)
+        assert mock_chat.call_count == 1
+
+    @patch("graphite.pipeline._client.LLMClient._chat_openai")
+    def test_does_not_retry_runtime_error(self, mock_chat):
+        """RuntimeError (no API key) should NOT be retried."""
+        from graphite.pipeline._client import LLMClient
+        mock_chat.side_effect = RuntimeError("No API key")
+        client = LLMClient(api_key="test-key")
+        with pytest.raises(RuntimeError):
+            client.chat_json("gemini-2.5-flash", "sys", "usr", max_retries=3)
+        assert mock_chat.call_count == 1
+
+    @patch("graphite.pipeline._client.LLMClient._chat_openai")
+    def test_raises_after_max_retries_exhausted(self, mock_chat):
+        """Should raise the last error after exhausting retries."""
+        import json as _json
+        from graphite.pipeline._client import LLMClient
+        mock_chat.side_effect = _json.JSONDecodeError("bad", "", 0)
+        client = LLMClient(api_key="test-key")
+        with patch("time.sleep"):
+            with pytest.raises(_json.JSONDecodeError):
+                client.chat_json("gemini-2.5-flash", "sys", "usr", max_retries=2)
+        assert mock_chat.call_count == 2
+
+    def test_zero_retries_raises(self):
+        """max_retries=0 should raise immediately."""
+        from graphite.pipeline._client import LLMClient
+        client = LLMClient(api_key="test-key")
+        with pytest.raises(RuntimeError, match="max_retries must be >= 1"):
+            client.chat_json("gemini-2.5-flash", "sys", "usr", max_retries=0)
 
 
 class TestBackwardCompat:

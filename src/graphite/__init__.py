@@ -81,3 +81,7 @@ __version__ = "0.3.2"
 # Resolve forward references in EvidencePacket
 # (must be after Claim and ConfidenceResult are imported)
 EvidencePacket.model_rebuild(_types_namespace={"Claim": Claim, "ConfidenceResult": ConfidenceResult})
+
+# ── Logging ──
+import logging
+logging.getLogger("graphite").addHandler(logging.NullHandler())
