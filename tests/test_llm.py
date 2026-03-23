@@ -104,6 +104,39 @@ class TestGeminiExtractStructured:
             assert mock_client.models.generate_content.call_count == 2
 
 
+class TestThreadSafety:
+    def test_get_gemini_client_thread_safe(self, _patch_genai_and_reset):
+        """get_gemini_client() should only call _init_client() once with concurrent access."""
+        import threading as th
+        llm_mod = _patch_genai_and_reset
+
+        call_count = 0
+
+        def counting_init():
+            nonlocal call_count
+            call_count += 1
+            import time; time.sleep(0.05)
+            return MagicMock()
+
+        with patch.object(llm_mod, '_init_client', side_effect=counting_init):
+            threads = [th.Thread(target=llm_mod.get_gemini_client) for _ in range(10)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+
+        assert call_count == 1, f"_init_client called {call_count} times, expected 1"
+
+
+class TestMaxRetriesGuard:
+    def test_zero_retries_raises(self, _patch_genai_and_reset):
+        """max_retries=0 should raise RuntimeError, not return None."""
+        llm_mod = _patch_genai_and_reset
+        llm_mod._client = MagicMock()  # skip client init
+        with pytest.raises(RuntimeError, match="max_retries must be >= 1"):
+            llm_mod.gemini_extract_structured("test", "prompt", SampleSchema, max_retries=0)
+
+
 class TestGeminiExtractJson:
     def test_returns_dict(self, _patch_genai_and_reset):
         llm_mod = _patch_genai_and_reset

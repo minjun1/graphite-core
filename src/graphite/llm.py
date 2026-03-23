@@ -39,6 +39,7 @@ T = TypeVar("T", bound=BaseModel)
 
 # ── Lazy client ──
 _client = None
+_client_lock = threading.Lock()
 
 
 def _init_client():
@@ -58,7 +59,9 @@ def _init_client():
 def get_gemini_client():
     global _client
     if _client is None:
-        _client = _init_client()
+        with _client_lock:
+            if _client is None:
+                _client = _init_client()
     return _client
 
 
@@ -118,6 +121,9 @@ def gemini_extract_structured(
             wait = 2 ** (attempt + 1)
             print(f"  ⚠️ Gemini attempt {attempt + 1} failed: {e}. Retry in {wait}s...")
             time.sleep(wait)
+
+    # Guard: if max_retries=0, the loop never executes → silent None return
+    raise RuntimeError("gemini_extract_structured: max_retries must be >= 1")
 
 
 def gemini_extract_json(
