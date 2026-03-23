@@ -1,8 +1,5 @@
-"""
-graphite/pipeline/verifier.py — Claim-level verification using LLMs.
-"""
+"""graphite/pipeline/verifier.py — Claim-level verification using LLMs."""
 
-import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 
@@ -14,9 +11,9 @@ class ClaimVerifier:
     """Evaluates claims against retrieved evidence spans."""
 
     def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, system_prompt: Optional[str] = None):
-        from graphite.pipeline._client import create_openai_client
+        from graphite.pipeline._client import create_llm_client
         from graphite.pipeline.prompts import VERIFIER_SYSTEM_PROMPT
-        self.client = create_openai_client(api_key=api_key, base_url=base_url)
+        self.client = create_llm_client(api_key=api_key, base_url=base_url)
         self.system_prompt = system_prompt or VERIFIER_SYSTEM_PROMPT
 
     def verify_claims(
@@ -25,10 +22,7 @@ class ClaimVerifier:
         evidence_map: Dict[str, List[Dict[str, Any]]],
         model: str = "gemini-2.5-flash",
     ) -> List[Verdict]:
-        """
-        Verify each claim against its retrieved evidence chunks.
-        evidence_map is a dict of claim_id -> list of chunk dicts.
-        """
+        """Verify each claim against its retrieved evidence chunks."""
         verdicts = []
 
         for claim in claims:
@@ -39,24 +33,12 @@ class ClaimVerifier:
 
             user_prompt = f"CLAIM:\n{claim.claim_text}\n\nEVIDENCE:\n{evidence_text}"
 
-            response = self.client.chat.completions.create(
+            res = self.client.chat_json(
                 model=model,
-                messages=[
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                response_format={"type": "json_object"},
+                system_prompt=self.system_prompt,
+                user_prompt=user_prompt,
             )
 
-            try:
-                res = json.loads(response.choices[0].message.content)
-            except json.JSONDecodeError as e:
-                raise ValueError(
-                    f"LLM returned invalid JSON: {e}. "
-                    f"Raw response: {response.choices[0].message.content[:200]}"
-                ) from e
-
-            # Extract evidence IDs based on returned indices
             supp_ids = [
                 chunks[i]["document_id"]
                 for i in res.get("supporting_evidence_indices", [])
@@ -75,7 +57,6 @@ class ClaimVerifier:
                 text=res.get("rationale_text", ""),
             )
 
-            # Map string to enum
             v_str = res.get("verdict", "INSUFFICIENT").upper()
             try:
                 verdict_enum = VerdictEnum(v_str)
