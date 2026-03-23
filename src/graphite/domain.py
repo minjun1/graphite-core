@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Type
 
-import networkx as nx
 from pydantic import BaseModel, Field
 
 from .enums import NodeType, SourceType
@@ -132,7 +131,7 @@ class BasePipeline(ABC):
     """
 
     @abstractmethod
-    def run(self, entity_ids: List[str], output_path: str, **kwargs) -> nx.DiGraph:
+    def run(self, entity_ids: List[str], output_path: str, **kwargs) -> Any:
         """Run the full pipeline.
 
         Args:

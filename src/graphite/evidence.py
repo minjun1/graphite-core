@@ -11,6 +11,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import TYPE_CHECKING, List, Optional, Literal
 
+from .enums import ClaimStatus
 from .rules import RuleResult
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ class EvidencePacket(BaseModel):
     The Graphite Evidence Packet — the core output format.
 
     Every verified claim returns this structure, providing:
-    1. A deterministic verdict (SUPPORTED / WEAK / NOT_FOUND)
+    1. A deterministic verdict (SUPPORTED / WEAK / UNSUPPORTED / MIXED)
     2. The source evidence with document link and quote hash
     3. Rule engine scoring breakdown
     4. Counter-evidence (anti-cherry-picking safeguard)
@@ -75,7 +76,7 @@ class EvidencePacket(BaseModel):
 
     graphite_version: str = "1.0"
     claim_hash: str
-    status: str  # SUPPORTED / WEAK / NOT_FOUND / MIXED_EVIDENCE
+    status: ClaimStatus  # SUPPORTED / WEAK / UNSUPPORTED / MIXED / PENDING_REVIEW
     verdict_reason: str = ""
     evidence: Optional[EvidenceData] = None
     scoring: Optional[ScoringData] = None

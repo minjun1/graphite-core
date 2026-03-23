@@ -171,6 +171,14 @@ class TestConfidenceScorer:
         r_web = self.scorer.score(claim_web)
         assert r_sec.score > r_web.score
 
+    def test_document_source_type_has_quality(self):
+        """SourceType.DOCUMENT should have an explicit quality tier, not default 0.3."""
+        claim = _claim(supporting_evidence=[_prov(source_type=SourceType.DOCUMENT)])
+        result = self.scorer.score(claim)
+        doc_quality_factor = next(f for f in result.factors if f.name == "doc_quality")
+        # DOCUMENT is 0.6 → contribution = 0.6 * 0.15 = 0.09, strictly better than default 0.3 * 0.15
+        assert doc_quality_factor.contribution > 0.3 * 0.15
+
     def test_deterministic(self):
         """Same input always produces same output."""
         claim = _claim(supporting_evidence=[_prov()])
@@ -178,6 +186,19 @@ class TestConfidenceScorer:
         r2 = self.scorer.score(claim)
         assert r1.score == r2.score
         assert len(r1.factors) == len(r2.factors)
+
+    def test_newest_date_uses_valid_from(self):
+        """_newest_date should consider valid_from, not just extracted_at/observed_at."""
+        scorer = ConfidenceScorer()
+        prov = Provenance(
+            source_id="src1",
+            source_type=SourceType.SEC_10K,
+            evidence_quote="test",
+            extracted_at="",
+            valid_from="2026-01-15",
+        )
+        result = scorer._newest_date([prov])
+        assert result == "2026-01-15"
 
     def test_recency_reproducible_with_explicit_now(self):
         """score() with explicit now produces identical results."""

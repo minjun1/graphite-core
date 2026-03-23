@@ -238,34 +238,38 @@ class ClaimStore:
     def find_supporting_claims(self, claim: Claim) -> List[Claim]:
         """Find existing claims that support the given claim.
 
-        A supporting claim shares at least one entity AND has a compatible
-        predicate (same predicate family). This is deterministic — no LLM.
-
-        Args:
-            claim: The claim to find support for.
-
-        Returns:
-            Claims in the registry that share entities and predicates.
+        A supporting claim shares at least one entity AND has the same
+        predicate. Uses a single query instead of N+1 per entity.
         """
-        results = []
+        conditions = []
+        params = []
 
-        # Search by shared subjects
         for entity in claim.subject_entities:
-            entity_key = entity.split(":")[-1] if ":" in entity else entity
-            results.extend(self.search_claims(subject_contains=entity_key))
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("subject_entities LIKE ?")
+            params.append(f"%{key}%")
 
-        # Search by shared objects
         for entity in claim.object_entities:
-            entity_key = entity.split(":")[-1] if ":" in entity else entity
-            results.extend(self.search_claims(object_contains=entity_key))
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("object_entities LIKE ?")
+            params.append(f"%{key}%")
 
-        # Dedupe and filter: same predicate, different claim_id
+        if not conditions:
+            return []
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"SELECT full_json FROM claims WHERE ({' OR '.join(conditions)})",
+                params,
+            )
+            rows = cursor.fetchall()
+
         seen = set()
         supporting = []
-        for c in results:
-            if c.claim_id == claim.claim_id:
-                continue
-            if c.claim_id in seen:
+        for row in rows:
+            c = Claim.model_validate_json(row[0])
+            if c.claim_id == claim.claim_id or c.claim_id in seen:
                 continue
             seen.add(c.claim_id)
             if c.predicate == claim.predicate:
@@ -276,42 +280,57 @@ class ClaimStore:
     def find_potential_conflicts(self, claim: Claim) -> List[Claim]:
         """Find claims that may conflict with the given claim.
 
-        A potential conflict shares entities but has a different predicate,
-        which may indicate a contradictory or weakening relationship.
-        This is a conservative, deterministic check — not a truth judgment.
-
-        Args:
-            claim: The claim to check for conflicts against.
-
-        Returns:
-            Claims that share entities but differ in predicate.
+        A potential conflict shares entities but has a different predicate.
+        Uses a single query instead of N+1 per entity.
         """
-        results = []
-
-        # Search by shared entities (both directions)
         all_entities = claim.subject_entities + claim.object_entities
-        for entity in all_entities:
-            entity_key = entity.split(":")[-1] if ":" in entity else entity
-            results.extend(self.search_claims(subject_contains=entity_key))
-            results.extend(self.search_claims(object_contains=entity_key))
+        conditions = []
+        params = []
 
-        # Dedupe and filter: different predicate, same entities involved
+        # Search subjects in subject_entities column
+        for entity in claim.subject_entities:
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("subject_entities LIKE ?")
+            params.append(f"%{key}%")
+
+        # Search objects in object_entities column
+        for entity in claim.object_entities:
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("object_entities LIKE ?")
+            params.append(f"%{key}%")
+
+        # Also search reverse direction for conflicts
+        for entity in claim.subject_entities:
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("object_entities LIKE ?")
+            params.append(f"%{key}%")
+
+        for entity in claim.object_entities:
+            key = entity.split(":")[-1] if ":" in entity else entity
+            conditions.append("subject_entities LIKE ?")
+            params.append(f"%{key}%")
+
+        if not conditions:
+            return []
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"SELECT full_json FROM claims WHERE ({' OR '.join(conditions)})",
+                params,
+            )
+            rows = cursor.fetchall()
+
+        claim_entities = set(e.upper().strip() for e in all_entities)
         seen = set()
         conflicts = []
-        claim_entities = set(e.upper().strip() for e in all_entities)
-
-        for c in results:
-            if c.claim_id == claim.claim_id:
-                continue
-            if c.claim_id in seen:
+        for row in rows:
+            c = Claim.model_validate_json(row[0])
+            if c.claim_id == claim.claim_id or c.claim_id in seen:
                 continue
             seen.add(c.claim_id)
-
-            # Must have different predicate
             if c.predicate == claim.predicate:
                 continue
-
-            # Must share at least one entity
             c_entities = set(
                 e.upper().strip() for e in c.subject_entities + c.object_entities
             )

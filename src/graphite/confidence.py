@@ -53,6 +53,7 @@ _SOURCE_QUALITY = {
     SourceType.EARTH_OBSERVATION: 0.8,
     SourceType.GEOSPATIAL_DATA: 0.8,
     SourceType.WEATHER_FORECAST: 0.7,
+    SourceType.DOCUMENT: 0.6,
     SourceType.WEB: 0.4,
     SourceType.MANUAL: 0.3,
 }
@@ -253,7 +254,7 @@ class ConfidenceScorer:
         """Find the newest date string across all evidence."""
         dates = []
         for p in evidence:
-            for date_field in (p.extracted_at, p.observed_at):
+            for date_field in (p.extracted_at, p.observed_at, p.valid_from):
                 if date_field:
                     dates.append(date_field)
         return max(dates) if dates else "unknown"

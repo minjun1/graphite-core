@@ -73,7 +73,7 @@ class ConfidenceResult(BaseModel):
 
     @classmethod
     def from_score(
-        cls, score: float, factors: List[ConfidenceFactor] = None
+        cls, score: float, factors: Optional[List[ConfidenceFactor]] = None
     ) -> "ConfidenceResult":
         """Create a ConfidenceResult from a raw score, deriving the level."""
         score = max(0.0, min(1.0, score))
@@ -265,7 +265,9 @@ class Claim(BaseModel):
         """
         if not self.supporting_evidence:
             result = ClaimStatus.UNSUPPORTED
-        elif self.supporting_evidence and self.weakening_evidence:
+        elif self.weakening_evidence:
+            # Counter-evidence always triggers MIXED — use override_status()
+            # for analyst judgment when confidence is high despite opposition.
             result = ClaimStatus.MIXED
         elif self.confidence and self.confidence.score >= support_threshold:
             result = ClaimStatus.SUPPORTED
@@ -323,16 +325,3 @@ class Claim(BaseModel):
     @property
     def evidence_count(self) -> int:
         return len(self.supporting_evidence) + len(self.weakening_evidence)
-
-
-# ═══════════════════════════════════════
-# Backward compat re-exports (to be removed in next major version)
-# ═══════════════════════════════════════
-from .pipeline.verdict import (  # noqa: E402, F401
-    VerdictEnum,
-    ArgumentVerdictEnum,
-    VerdictRationale,
-    Verdict,
-    ArgumentVerdict,
-    VerificationReport,
-)
