@@ -171,6 +171,14 @@ class TestConfidenceScorer:
         r_web = self.scorer.score(claim_web)
         assert r_sec.score > r_web.score
 
+    def test_document_source_type_has_quality(self):
+        """SourceType.DOCUMENT should have an explicit quality tier, not default 0.3."""
+        claim = _claim(supporting_evidence=[_prov(source_type=SourceType.DOCUMENT)])
+        result = self.scorer.score(claim)
+        doc_quality_factor = next(f for f in result.factors if f.name == "doc_quality")
+        # DOCUMENT is 0.6 → contribution = 0.6 * 0.15 = 0.09, strictly better than default 0.3 * 0.15
+        assert doc_quality_factor.contribution > 0.3 * 0.15
+
     def test_deterministic(self):
         """Same input always produces same output."""
         claim = _claim(supporting_evidence=[_prov()])

@@ -53,6 +53,7 @@ _SOURCE_QUALITY = {
     SourceType.EARTH_OBSERVATION: 0.8,
     SourceType.GEOSPATIAL_DATA: 0.8,
     SourceType.WEATHER_FORECAST: 0.7,
+    SourceType.DOCUMENT: 0.6,
     SourceType.WEB: 0.4,
     SourceType.MANUAL: 0.3,
 }
