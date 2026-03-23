@@ -30,6 +30,18 @@
   print(f"Requires Human Review: {len(report.risky_claim_ids)} claims")
   ```
 
+  Need domain-specific prompts? Pass a `PromptSet`:
+
+  ```python
+  from graphite.pipeline.prompts import PromptSet
+
+  medical_prompts = PromptSet(
+      extractor="You are a medical claim extractor. Extract clinical assertions...",
+      verifier="You are a clinical evidence checker. Evaluate against guidelines...",
+  )
+  report = verify_agent_output(text, corpus, prompts=medical_prompts)
+  ```
+
   This single API wraps a 5-step pipeline:
 
   1. **Extract**: Parses the document into atomic claims using LLMs.
@@ -153,22 +165,33 @@
 
   ---
 
-  ## Evaluation Snapshot
+  ## Evaluation Framework
 
-  Representative verification cases from our golden test suite (current snapshot run on GPT-4o; `evals/verify_eval.py`):
+  Graphite ships with a built-in eval harness for structured benchmarking across models and domains.
 
-  | Test Case | Type | Expected | Graphite Output |
-  |-----------|------|----------|-----------------|
-  | Paraphrased contradiction | Semantic | CONFLICTED | CONFLICTED |
-  | Numeric mismatch (10× error) | Factual | CONFLICTED | CONFLICTED |
-  | Temporal mismatch (stale CEO) | Temporal | CONFLICTED | CONFLICTED |
-  | Unsupported revenue prediction | Reasoning Leap | CONCLUSION_JUMP | CONCLUSION_JUMP |
+  ```python
+  from graphite.eval import EvalRunner
 
-  - Claim-level verdict: correct in 3/3 factual cases
-  - Argument-level verdict: correct in 1/1 reasoning case
-  - These cases are intended as regression checks for key failure modes, not as a broad accuracy benchmark.
+  runner = EvalRunner.from_json("src/graphite/eval/datasets/base.json")
+  run = runner.run(model="gemini-2.5-flash", output_path="results.json")
+  print(run.metrics())
+  # {'total': 4, 'claim_verdict_accuracy': 0.75, 'overall_pass_rate': 0.5, ...}
+  ```
 
-  > *This is a representative snapshot, not a comprehensive benchmark. See `evals/` for the full test suite and `examples/` for runnable demos. A larger-scale evaluation suite (100+ memos) is on the roadmap.*
+  The eval runner supports domain filtering (`domain="medical"`), custom prompts via `PromptSet`, latency tracking, error capture, and JSON result persistence for cross-model comparison.
+
+  Golden test cases from `src/graphite/eval/datasets/base.json`:
+
+  | Test Case | Type | Expected Claim | Expected Argument |
+  |-----------|------|----------------|-------------------|
+  | Paraphrased contradiction | Semantic | CONFLICTED | GROUNDED |
+  | Numeric mismatch (10× error) | Factual | CONFLICTED | GROUNDED |
+  | Temporal mismatch (stale CEO) | Temporal | CONFLICTED | GROUNDED |
+  | Unsupported revenue prediction | Reasoning Leap | CONFLICTED | CONCLUSION_JUMP |
+
+  Add your own domain-specific eval cases by extending `base.json` or creating new dataset files with `EvalCase` schema.
+
+  > *See `evals/verify_eval.py` for a runnable eval script. A larger-scale evaluation suite (100+ cases across finance, medical, legal) is on the roadmap.*
 
   ---
 
@@ -180,6 +203,8 @@
   | `Verdict` | Claim-level judgment (`SUPPORTED`, `CONFLICTED`, `INSUFFICIENT`) with structured rationale |
   | `ArgumentVerdict` | Argument-level judgment (`GROUNDED`, `CONCLUSION_JUMP`, `OVERSTATED`) |
   | `ClaimStore` | Persistent verification memory — deduplicates claims, merges evidence, and preserves review history across runs |
+  | `PromptSet` | Configurable system prompts for each pipeline stage — swap in domain-specific prompts without forking |
+  | `EvalRunner` | Structured benchmarking — run datasets, collect metrics, compare models, filter by domain |
 
   ---
 
