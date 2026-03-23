@@ -1,10 +1,12 @@
 """tests/test_evidence.py — Unit tests for graphite.evidence."""
 
 import pytest
+from pydantic import ValidationError
 from graphite.evidence import (
     EvidenceData, ScoringData,
     CounterEvidence, EvidencePacket,
 )
+from graphite.enums import ClaimStatus
 from graphite.rules import RuleResult
 
 
@@ -87,10 +89,10 @@ class TestEvidencePacket:
     def test_construction_minimal(self):
         ep = EvidencePacket(
             claim_hash="hash123",
-            status="SUPPORTED",
+            status=ClaimStatus.SUPPORTED,
         )
         assert ep.graphite_version == "1.0"
-        assert ep.status == "SUPPORTED"
+        assert ep.status == ClaimStatus.SUPPORTED
         assert ep.evidence is None
         assert ep.counter_evidence == []
 
@@ -102,7 +104,7 @@ class TestEvidencePacket:
         ce = CounterEvidence(quote="counter", doc_url="u", impact="WEAKENS")
         ep = EvidencePacket(
             claim_hash="hash",
-            status="MIXED_EVIDENCE",
+            status=ClaimStatus.MIXED,
             evidence=ed,
             counter_evidence=[ce],
             verdict_reason="Mixed signals",
@@ -110,8 +112,18 @@ class TestEvidencePacket:
         assert ep.evidence.source_entity == "a"
         assert len(ep.counter_evidence) == 1
 
+    def test_legacy_not_found_status_rejected(self):
+        """Legacy 'NOT_FOUND' string should be rejected."""
+        with pytest.raises(ValidationError):
+            EvidencePacket(claim_hash="h", status="NOT_FOUND")
+
+    def test_legacy_mixed_evidence_status_rejected(self):
+        """Legacy 'MIXED_EVIDENCE' string should be rejected."""
+        with pytest.raises(ValidationError):
+            EvidencePacket(claim_hash="h", status="MIXED_EVIDENCE")
+
     def test_serialization_roundtrip(self):
-        ep = EvidencePacket(claim_hash="h", status="SUPPORTED")
+        ep = EvidencePacket(claim_hash="h", status=ClaimStatus.SUPPORTED)
         data = ep.model_dump()
         restored = EvidencePacket.model_validate(data)
         assert restored.claim_hash == "h"
