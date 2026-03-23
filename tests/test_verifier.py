@@ -147,6 +147,19 @@ class TestVerifierErrors:
             verifier.verify_claims([claim], evidence_map)
 
 
+class TestClientInjection:
+    def test_injected_client_is_used(self):
+        from graphite.pipeline._client import LLMClient
+        mock_client = MagicMock(spec=LLMClient)
+        mock_client.chat_json.return_value = _mock_verifier_json("SUPPORTED")
+
+        verifier = ClaimVerifier(client=mock_client)
+        claim = _make_claim()
+        evidence_map = {claim.claim_id: [{"text": "evidence", "document_id": "doc1"}]}
+        verifier.verify_claims([claim], evidence_map)
+        mock_client.chat_json.assert_called_once()
+
+
 class TestCustomPrompt:
     @patch("graphite.pipeline._client.create_llm_client")
     def test_custom_system_prompt_is_used(self, mock_create):
