@@ -187,6 +187,19 @@ class TestConfidenceScorer:
         assert r1.score == r2.score
         assert len(r1.factors) == len(r2.factors)
 
+    def test_newest_date_uses_valid_from(self):
+        """_newest_date should consider valid_from, not just extracted_at/observed_at."""
+        scorer = ConfidenceScorer()
+        prov = Provenance(
+            source_id="src1",
+            source_type=SourceType.SEC_10K,
+            evidence_quote="test",
+            extracted_at="",
+            valid_from="2026-01-15",
+        )
+        result = scorer._newest_date([prov])
+        assert result == "2026-01-15"
+
     def test_recency_reproducible_with_explicit_now(self):
         """score() with explicit now produces identical results."""
         fixed_now = datetime(2026, 3, 21, tzinfo=timezone.utc)
