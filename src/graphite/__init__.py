@@ -48,6 +48,9 @@ from .domain import register_domain, get_domain, list_domains
 # ── Rules ──
 from .rules import BaseRuleEngine, RuleResult, ScoreBreakdown
 
+# ── Evaluation framework ──
+from .eval import EvalCase, EvalResult, EvalRun, EvalRunner
+
 __version__ = "0.3.2"
 
 # Resolve forward references in EvidencePacket

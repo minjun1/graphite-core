@@ -1,119 +1,32 @@
-"""
-graphite/evals/verify_eval.py — Golden Dataset Evaluation for the Verification Pipeline
+"""graphite/evals/verify_eval.py — Run eval using the EvalRunner."""
 
-Test axes covered:
-1. Paraphrased contradiction
-2. Numeric mismatch
-3. Temporal mismatch
-4. Retrieval noise
-5. Unsupported conclusions (Conclusion Jump)
-"""
+import os
+from graphite.eval import EvalRunner
 
-from graphite.pipeline import verify_agent_output
-
-EVAL_DATASET = [
-    {
-        "id": "paraphrase_contradiction",
-        "memo": "Company X exclusively uses AWS for all cloud operations.",
-        "corpus": [
-            {
-                "document_id": "doc1",
-                "text": "Company X runs workloads on Google Cloud Platform and Azure, migrating away from AWS.",
-            }
-        ],
-        "expected_claim_verdict": "CONFLICTED",
-        "expected_argument_verdict": "GROUNDED",
-    },
-    {
-        "id": "numeric_mismatch",
-        "memo": "The project secured $150M in Series B funding.",
-        "corpus": [
-            {
-                "document_id": "doc2",
-                "text": "The project secured $15M in Series B funding led by Sequoia.",
-            }
-        ],
-        "expected_claim_verdict": "CONFLICTED",
-        "expected_argument_verdict": "GROUNDED",
-    },
-    {
-        "id": "temporal_mismatch",
-        "memo": "Currently, the CEO of OpenAI is Emmett Shear.",
-        "corpus": [
-            {
-                "document_id": "doc3",
-                "text": "As of Nov 20, Emmett Shear was interim CEO. However, Sam Altman returned as CEO shortly after.",
-            }
-        ],
-        "expected_claim_verdict": "CONFLICTED",
-        "expected_argument_verdict": "GROUNDED",
-    },
-    {
-        "id": "unsupported_conclusion_jump",
-        "memo": "Sales increased by 5% in Q3. Therefore, the company's new AI strategy is a massive success and will double revenue next year.",
-        "corpus": [
-            {
-                "document_id": "doc4",
-                "text": "Q3 financials show a 5% increase in sales, primarily driven by holiday seasonal discounts, not the newly announced AI features.",
-            }
-        ],
-        "expected_claim_verdict": "CONFLICTED",
-        "expected_argument_verdict": "CONCLUSION_JUMP",
-    },
-]
+DATASET_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "src", "graphite", "eval", "datasets", "base.json"
+)
 
 
-def run_evaluation(model: str = "gpt-4o"):
-    print(f"Running Golden Dataset Evaluation with {model}...\n")
+def run_evaluation(model: str = "gemini-2.5-flash"):
+    runner = EvalRunner.from_json(DATASET_PATH)
+    run = runner.run(model=model)
 
-    passed = 0
-    total = len(EVAL_DATASET)
+    for result in run.results:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] {result.case_id}")
+        if result.error:
+            print(f"  Error: {result.error}")
+        if not result.claim_verdict_pass:
+            print(f"  Claim: expected {result.expected_claim_verdicts}, got {result.actual_claim_verdicts}")
+        if not result.argument_verdict_pass:
+            print(f"  Argument: expected {result.expected_argument_verdicts}, got {result.actual_argument_verdicts}")
 
-    for item in EVAL_DATASET:
-        print(f"Test: {item['id']}")
-        try:
-            report = verify_agent_output(item["memo"], item["corpus"], model=model)
-
-            claim_verdicts = [v.verdict.value for v in report.verdicts]
-            arg_verdicts = [v.verdict.value for v in report.argument_verdicts]
-
-            if item["expected_claim_verdict"] in claim_verdicts or (
-                not report.verdicts and item["expected_claim_verdict"] == "INSUFFICIENT"
-            ):
-                print("  [✓] Claim Verdict Match")
-            else:
-                print(f"  [x] Claim Verdict Mismatch (Got {claim_verdicts})")
-
-            if item["expected_argument_verdict"] in arg_verdicts or (
-                not report.argument_verdicts
-                and item["expected_argument_verdict"] == "GROUNDED"
-            ):
-                print("  [✓] Argument Verdict Match")
-                passed += 1
-            else:
-                print(f"  [x] Argument Verdict Mismatch (Got {arg_verdicts})")
-
-            # Test human review flag trigger
-            if "CONFLICTED" in claim_verdicts or "CONCLUSION_JUMP" in arg_verdicts:
-                risky = len(report.risky_claim_ids) > 0
-                human_review_flagged = any(
-                    v.needs_human_review for v in report.verdicts
-                ) or any(a.needs_human_review for a in report.argument_verdicts)
-                if risky or human_review_flagged:
-                    print("  [✓] Human Review successfully flagged for risk")
-                else:
-                    print("  [x] Failed to flag human review for risky assertion")
-
-        except ImportError:
-            print("  [-] Skipping due to missing openai / litellm dependency.")
-            return
-        except Exception as e:
-            print(f"  [x] Pipeline Error: {e}")
-
-    print(f"\nEval completed: {passed}/{total} tests passed.")
+    metrics = run.metrics()
+    print(f"\nResults: {metrics['overall_pass_rate']:.0%} pass rate ({metrics['total']} cases)")
+    if metrics.get("mean_latency_ms"):
+        print(f"Mean latency: {metrics['mean_latency_ms']:.0f}ms")
 
 
 if __name__ == "__main__":
-    # NOTE: Run this script with a valid OPENAI_API_KEY environment variable.
-    # run_evaluation()
-    pass
+    run_evaluation()

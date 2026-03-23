@@ -1,0 +1,46 @@
+[
+  {
+    "id": "paraphrase_contradiction",
+    "memo": "Company X exclusively uses AWS for all cloud operations.",
+    "corpus": [
+      {"document_id": "doc1", "text": "Company X runs workloads on Google Cloud Platform and Azure, migrating away from AWS."}
+    ],
+    "expected_claim_verdicts": ["CONFLICTED"],
+    "expected_argument_verdicts": ["GROUNDED"],
+    "domain": "general",
+    "tags": ["paraphrase", "entity_mismatch"]
+  },
+  {
+    "id": "numeric_mismatch",
+    "memo": "The project secured $150M in Series B funding.",
+    "corpus": [
+      {"document_id": "doc2", "text": "The project secured $15M in Series B funding led by Sequoia."}
+    ],
+    "expected_claim_verdicts": ["CONFLICTED"],
+    "expected_argument_verdicts": ["GROUNDED"],
+    "domain": "general",
+    "tags": ["numeric", "magnitude_error"]
+  },
+  {
+    "id": "temporal_mismatch",
+    "memo": "Currently, the CEO of OpenAI is Emmett Shear.",
+    "corpus": [
+      {"document_id": "doc3", "text": "As of Nov 20, Emmett Shear was interim CEO. However, Sam Altman returned as CEO shortly after."}
+    ],
+    "expected_claim_verdicts": ["CONFLICTED"],
+    "expected_argument_verdicts": ["GROUNDED"],
+    "domain": "general",
+    "tags": ["temporal", "stale_claim"]
+  },
+  {
+    "id": "unsupported_conclusion_jump",
+    "memo": "Sales increased by 5% in Q3. Therefore, the company's new AI strategy is a massive success and will double revenue next year.",
+    "corpus": [
+      {"document_id": "doc4", "text": "Q3 financials show a 5% increase in sales, primarily driven by holiday seasonal discounts, not the newly announced AI features."}
+    ],
+    "expected_claim_verdicts": ["CONFLICTED"],
+    "expected_argument_verdicts": ["CONCLUSION_JUMP"],
+    "domain": "general",
+    "tags": ["logic_leap", "overgeneralization"]
+  }
+]
