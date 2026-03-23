@@ -11,24 +11,22 @@ class TestLLMClientProviderDetection:
         assert client._is_anthropic("claude-sonnet-4-6") is True
         assert client._is_anthropic("claude-haiku-4-5-20251001") is True
 
-    def test_gemini_model_selects_openai(self):
+    def test_non_claude_model_selects_openai(self):
         from graphite.pipeline._client import LLMClient
         client = LLMClient(api_key="test-key")
         assert client._is_anthropic("gemini-2.5-flash") is False
         assert client._is_anthropic("gpt-4o") is False
+        assert client._is_anthropic("llama3") is False
+        assert client._is_anthropic("my-custom-model") is False
 
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "ant-key"}, clear=True)
-    def test_anthropic_env_key_selects_anthropic_for_unknown_model(self):
-        from graphite.pipeline._client import LLMClient
-        client = LLMClient(api_key="test-key")
-        assert client._is_anthropic("my-custom-model") is True
-
-    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "ant-key"}, clear=True)
-    def test_gemini_model_not_routed_to_anthropic(self):
+    def test_env_key_does_not_affect_routing(self):
+        """ANTHROPIC_API_KEY should NOT affect routing — only model name matters."""
         from graphite.pipeline._client import LLMClient
         client = LLMClient(api_key="test-key")
         assert client._is_anthropic("gemini-2.5-flash") is False
-        assert client._is_anthropic("gpt-4o") is False
+        assert client._is_anthropic("my-custom-model") is False
+        assert client._is_anthropic("claude-sonnet-4-6") is True
 
 
 class TestLLMClientAPIKeyResolution:

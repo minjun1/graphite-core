@@ -22,10 +22,6 @@ def _strip_fences(text: str) -> str:
     return m.group(1).strip() if m else text
 
 
-# Known non-Anthropic model prefixes
-_NON_ANTHROPIC_PREFIXES = ("gemini", "gpt", "o1", "o3", "llama", "mistral", "qwen")
-
-
 class LLMClient:
     """Unified LLM client — wraps OpenAI-compatible and Anthropic SDKs."""
 
@@ -39,14 +35,7 @@ class LLMClient:
 
     def _is_anthropic(self, model: str) -> bool:
         """Determine if a model should use the Anthropic SDK."""
-        if model.startswith("claude"):
-            return True
-        if model.startswith(_NON_ANTHROPIC_PREFIXES):
-            return False
-        # For unknown model names, fall back to env var presence
-        if os.environ.get("ANTHROPIC_API_KEY"):
-            return True
-        return False
+        return model.startswith("claude")
 
     def chat_json(
         self,
