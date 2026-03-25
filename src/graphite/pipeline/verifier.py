@@ -21,7 +21,7 @@ class ClaimVerifier:
         self,
         claims: List[Claim],
         evidence_map: Dict[str, List[Dict[str, Any]]],
-        model: str = "gemini-2.5-flash",
+        model: str = "gemini-3.1-flash",
     ) -> List[Verdict]:
         """Verify each claim against its retrieved evidence chunks."""
         verdicts = []
@@ -84,7 +84,7 @@ class ClaimVerifier:
 def verify_claims(
     claims: List[Claim],
     evidence_map: Dict[str, List[Dict[str, Any]]],
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.1-flash",
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
 ) -> List[Verdict]:

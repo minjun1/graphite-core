@@ -17,7 +17,7 @@ class ClaimExtractor:
         self.system_prompt = system_prompt or EXTRACTOR_SYSTEM_PROMPT
 
     def extract_claims(
-        self, document: str, model: str = "gemini-2.5-flash"
+        self, document: str, model: str = "gemini-3.1-flash"
     ) -> List[Claim]:
         """Parse raw text into discrete atomic claims."""
         data = self.client.chat_json(
@@ -45,7 +45,7 @@ class ClaimExtractor:
 
 
 def extract_claims(
-    document: str, model: str = "gemini-2.5-flash", api_key: Optional[str] = None,
+    document: str, model: str = "gemini-3.1-flash", api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
 ) -> List[Claim]:
     """Convenience function to extract claims using the default provider."""

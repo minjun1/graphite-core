@@ -16,7 +16,7 @@ from graphite.pipeline.prompts import PromptSet, DEFAULT_PROMPTS
 def verify_agent_output(
     text: str,
     corpus: List[Dict[str, str]],
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.1-flash",
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
     prompts: Optional[PromptSet] = None,

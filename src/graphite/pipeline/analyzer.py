@@ -21,7 +21,7 @@ class ArgumentAnalyzer:
         self.system_prompt = system_prompt or ANALYZER_SYSTEM_PROMPT
 
     def analyze_argument_chain(
-        self, memo_text: str, verdicts: List[Verdict], model: str = "gemini-2.5-flash"
+        self, memo_text: str, verdicts: List[Verdict], model: str = "gemini-3.1-flash"
     ) -> List[ArgumentVerdict]:
         """Evaluate if conclusions logically follow from supported claims."""
         verdicts_summary = ""
@@ -63,7 +63,7 @@ class ArgumentAnalyzer:
 def analyze_argument_chain(
     memo_text: str,
     verdicts: List[Verdict],
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.1-flash",
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
 ) -> List[ArgumentVerdict]:

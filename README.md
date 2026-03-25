@@ -42,7 +42,7 @@
   report = verify_agent_output(text, corpus, model="claude-opus-4-6")
 
   # OpenAI
-  report = verify_agent_output(text, corpus, model="gpt-4.1")
+  report = verify_agent_output(text, corpus, model="gpt-5.4")
 
   # Local / open-source (Ollama, vLLM)
   report = verify_agent_output(text, corpus, model="llama-4-scout")
@@ -155,7 +155,7 @@
   from graphite.eval import EvalRunner
 
   runner = EvalRunner.from_json("src/graphite/eval/datasets/base.json")
-  run = runner.run(model="gemini-2.5-pro", output_path="results.json")
+  run = runner.run(model="gemini-3.1-pro", output_path="results.json")
   print(run.metrics())
   # {'total': 4, 'claim_verdict_accuracy': 0.75, 'overall_pass_rate': 0.5, ...}
   ```

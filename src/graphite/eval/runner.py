@@ -25,7 +25,7 @@ class EvalRunner:
 
     def run(
         self,
-        model: str = "gemini-2.5-flash",
+        model: str = "gemini-3.1-flash",
         api_key: Optional[str] = None,
         prompts: Optional[PromptSet] = None,
         domain: Optional[str] = None,
